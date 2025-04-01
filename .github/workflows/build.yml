@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: xiaohanys91/RNAedit:latest
+          tags: xiaohanys91/rnaedit:latest
