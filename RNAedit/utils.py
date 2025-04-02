@@ -1,144 +1,36 @@
-import aiohttp
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-
-async def get_genome_coordinates_mygene(gene_symbol):
-    """通过 MyGene.info API 获取基因坐标（异步版本）"""
-    url = (
-        f"https://mygene.info/v3/query?q={gene_symbol}&species=human&fields=genomic_pos"
-    )
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status != 200:
-                raise ValueError("API 请求失败")
-
-            data = await response.json()
-    if data["hits"] and "genomic_pos" in data["hits"][0]:
-        pos = data["hits"][0]["genomic_pos"]
-        return {
-            "region": pos["chr"],
-            "start": pos["start"],
-            "end": pos["end"],
-            "strand": 1 if pos["strand"] == 1 else -1,
-        }
-    else:
-        raise ValueError(f"基因 {gene_symbol} 未找到坐标信息")
-
-
-async def get_ucsc_data(chrom, start, end):
-    """从 UCSC 获取指定区域的基因结构（异步版本）"""
-    base_url = "https://api.genome.ucsc.edu/getData/track"
-    params = {
-        "genome": "hg38",
-        "track": "knownGene",
-        "chrom": chrom,
-        "start": start,
-        "end": end,
-    }
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(base_url, params=params) as response:
-            if response.status != 200:
-                raise ValueError("UCSC 数据获取失败")
-
-            return await response.json()
-
-
-async def parse_transcripts(ucsc_data, ensembl_coord):
-    """解析基因结构数据，获取转录本列表，每个转录本包含外显子和UTR坐标"""
-    transcripts = []
-
-    # 检查数据结构
-    if "knownGene" not in ucsc_data:
-        print(f"警告: UCSC 数据结构不符合预期，返回的键: {list(ucsc_data.keys())}")
-        return []
-
-    for item in ucsc_data["knownGene"]:
-        # 筛选符合基因区域的转录本
-        if (
-            int(item["chromStart"]) > ensembl_coord["end"]
-            or int(item["chromEnd"]) < ensembl_coord["start"]
-        ):
+def parse_gene_data(gene_data):
+    transcript_data = gene_data.transcripts
+    transcript_list = []
+    for transcript in transcript_data:
+        if not transcript.cdses and not transcript.utres:
             continue
-
-        # 获取基本信息
-        transcript_id = item["name"]
-        gene_name = item.get("geneName", "Unknown")
-        gene_type = item.get("geneType", "Unknown")
-        strand = "+" if item["strand"] == "+" else "-"
-
-        # 解析外显子坐标
-        block_sizes = [int(size) for size in item["blockSizes"].split(",") if size]
-        chrom_starts = [int(start) for start in item["chromStarts"].split(",") if start]
-
-        # 计算每个外显子的绝对坐标
-        exons = []
-        for i in range(len(block_sizes)):
-            exon_start = item["chromStart"] + chrom_starts[i]
-            exon_end = exon_start + block_sizes[i]
-            exons.append((exon_start, exon_end))
-
-        # 获取CDS区域（编码区）
-        cds_start = int(item["thickStart"])
-        cds_end = int(item["thickEnd"])
-
-        # 计算UTR区域
-        utrs = []
-        for exon_start, exon_end in exons:
-            # 5' UTR (在起始密码子之前的区域)
-            if exon_end <= cds_start:
-                utrs.append(("UTR", exon_start, exon_end))
-            # 3' UTR (在终止密码子之后的区域)
-            elif exon_start >= cds_end:
-                utrs.append(("UTR", exon_start, exon_end))
-            # 部分UTR (跨越起始或终止密码子的外显子)
-            else:
-                if exon_start < cds_start:
-                    utrs.append(("UTR", exon_start, cds_start))
-                if exon_end > cds_end:
-                    utrs.append(("UTR", cds_end, exon_end))
-
-        # 计算纯编码区外显子（去除UTR部分）
-        coding_exons = []
-        for exon_start, exon_end in exons:
-            # 如果外显子完全在编码区外，跳过
-            if exon_end <= cds_start or exon_start >= cds_end:
-                continue
-
-            # 调整外显子边界以匹配编码区
-            coding_start = max(exon_start, cds_start)
-            coding_end = min(exon_end, cds_end)
-            coding_exons.append((coding_start, coding_end))
-
-        # 创建转录本对象
-        transcript = {
-            "id": transcript_id,
-            "gene_name": gene_name,
-            "gene_type": gene_type,
-            "strand": strand,
-            "exons": exons,
-            "coding_exons": coding_exons,
-            "utrs": utrs,
-            "cds_start": cds_start,
-            "cds_end": cds_end,
-            "transcript_start": item["chromStart"],
-            "transcript_end": item["chromEnd"],
-        }
-
-        transcripts.append(transcript)
-
-    return transcripts
+        else:
+            transcript_dict = {
+                "id": transcript.transcript_id,
+                "gene_name": gene_data.symbol,
+                "gene_type": transcript.transcript_type,
+                "strand": "+" if gene_data.strand == 1 else "-",
+                "coding_exons": [(cds.start, cds.end) for cds in transcript.cdses],
+                "utrs": [("UTR", utr.start, utr.end) for utr in transcript.utres],
+                "transcript_start": transcript.start,
+                "transcript_end": transcript.end,
+            }
+            transcript_list.append(transcript_dict)
+    return transcript_list
 
 
-async def create_visualization(transcripts, dot_plot_data=None):
+def create_visualization(transcripts, dot_plot_data=None):
     """创建可视化图形, 类似UCSC基因浏览器的效果
 
     Args:
         transcripts: 转录本数据列表
         dot_plot_data: 可选，散点图数据，格式为[{"x": position, "y": value}, ...]
     """
+    # 获取基因名称（从第一个转录本获取）
+    gene_name = transcripts[0]["gene_name"] if transcripts else "Unknown Gene"
     # 检查是否有散点图数据
     has_dot_plot = dot_plot_data is not None and len(dot_plot_data) > 0
 
@@ -361,29 +253,7 @@ async def create_visualization(transcripts, dot_plot_data=None):
         gene_name = transcript["gene_name"]
         strand = transcript["strand"]
 
-        # 添加转录本标签
-        if has_dot_plot:
-            fig.add_annotation(
-                x=transcript["transcript_start"],
-                y=y_level,
-                text=f"{transcript_id} ({gene_name})",
-                showarrow=False,
-                xanchor="right",
-                yanchor="middle",
-                font=dict(size=10),
-                row=1,
-                col=1,
-            )
-        else:
-            fig.add_annotation(
-                x=transcript["transcript_start"],
-                y=y_level,
-                text=f"{transcript_id} ({gene_name})",
-                showarrow=False,
-                xanchor="right",
-                yanchor="middle",
-                font=dict(size=10),
-            )
+        # 不再添加转录本标签，移除此部分代码
 
         # 计算箭头位置，避开外显子和UTR区域
         arrow_positions = []
@@ -394,7 +264,7 @@ async def create_visualization(transcripts, dot_plot_data=None):
 
         # 获取所有外显子和UTR的位置
         all_features = []
-        for start, end in transcript["exons"]:
+        for start, end in transcript["coding_exons"]:
             all_features.append((start, end))
         for _, start, end in transcript["utrs"]:
             all_features.append((start, end))
@@ -509,10 +379,15 @@ async def create_visualization(transcripts, dot_plot_data=None):
     # 设置布局
     if has_dot_plot:
         fig.update_layout(
-            title="Gene Structure Visualization",
+            title={
+                'text': gene_name,
+                'x': 0.5,  # 居中显示
+                'xanchor': 'center',
+                'yanchor': 'top'
+            },
             # height=max(600, 50 * len(transcripts) + 200),  # 根据转录本数量调整高度
             plot_bgcolor="white",
-            margin=dict(l=150, r=50, t=50, b=50),  # 左侧留出足够空间显示转录本ID
+            margin=dict(l=50, r=50, t=50, b=50),  # 减小左侧边距，因为不再显示转录本ID
         )
 
         # 更新基因结构子图
@@ -528,7 +403,12 @@ async def create_visualization(transcripts, dot_plot_data=None):
         fig.update_xaxes(range=[genome_min - 1000, genome_max + 1000], row=2, col=1)
     else:
         fig.update_layout(
-            title="Gene Structure Visualization",
+            title={
+                'text': gene_name,
+                'x': 0.5,  # 居中显示
+                'xanchor': 'center',
+                'yanchor': 'top'
+            },
             xaxis_title="Genomic Position",
             yaxis=dict(
                 visible=False,  # 隐藏Y轴
@@ -537,32 +417,11 @@ async def create_visualization(transcripts, dot_plot_data=None):
             hovermode="closest",
             # height=max(450, 50 * len(transcripts)),  # 根据转录本数量调整高度
             plot_bgcolor="white",
-            margin=dict(l=150, r=50, t=50, b=50),  # 左侧留出足够空间显示转录本ID
+            margin=dict(l=50, r=50, t=50, b=50),  # 减小左侧边距，因为不再显示转录本ID
         )
 
     return fig
 
 
-async def render_image(gene_symbol, scatter_data=None):
-    """总体渲染函数，接收基因符号和散点数据，返回可视化图表
 
-    Args:
-        gene_symbol: 基因符号
-        scatter_data: 可选，散点图数据，格式为[{"x": position, "y": value}, ...]
 
-    Returns:
-        plotly图表对象
-    """
-    # 获取基因坐标
-    coord = await get_genome_coordinates_mygene(gene_symbol)
-
-    # 获取UCSC数据
-    ucsc_data = await get_ucsc_data(coord["region"], coord["start"], coord["end"])
-
-    # 解析转录本
-    transcripts = await parse_transcripts(ucsc_data, coord)
-
-    # 创建可视化
-    fig = await create_visualization(transcripts, scatter_data)
-
-    return fig

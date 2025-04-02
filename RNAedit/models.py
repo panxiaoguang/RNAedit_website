@@ -11,14 +11,40 @@ class Species(rx.Model, table=True):
 class Gene(rx.Model, table=True):
     species_id: int = sqlmodel.Field(foreign_key="species.id")
     species: Optional["Species"] = sqlmodel.Relationship(back_populates="genes")
-    rnaediting: List["RNAediting"] = sqlmodel.Relationship(back_populates="gene")
+    transcripts: List["Transcript"] = sqlmodel.Relationship(back_populates="gene")
+    #rnaediting: List["RNAediting"] = sqlmodel.Relationship(back_populates="gene")
     chromosome: str
     start: int
     end: int
     strand: str
-    gene_symbol: str
+    symbol: str
+    
+class Transcript(rx.Model, table=True):
+    gene_id: int = sqlmodel.Field(foreign_key="gene.id")
+    gene: Optional["Gene"] = sqlmodel.Relationship(back_populates="transcripts")
+    cdses: List["Cds"] = sqlmodel.Relationship(back_populates="transcript")
+    utres: List["Utr"] = sqlmodel.Relationship(back_populates="transcript")
+    transcript_id: str
+    chromosome: str
+    start: int
+    end: int
+    transcript_type: str
 
+class Cds(rx.Model, table=True):
+    transcript_id: int = sqlmodel.Field(foreign_key="transcript.id")
+    transcript: Optional["Transcript"] = sqlmodel.Relationship(back_populates="cdses")
+    chromosome: str
+    start: int
+    end: int
 
+class Utr(rx.Model, table=True):
+    transcript_id: int = sqlmodel.Field(foreign_key="transcript.id")
+    transcript: Optional["Transcript"] = sqlmodel.Relationship(back_populates="utres")
+    chromosome: str
+    start: int
+    end: int
+    
+"""
 class RNAediting(rx.Model, table=True):
     gene_id: int = sqlmodel.Field(foreign_key="gene.id")
     gene: Optional["Gene"] = sqlmodel.Relationship(back_populates="rnaediting")
@@ -44,3 +70,4 @@ class Pvalue(rx.Model, table=True):
     rnaediting: Optional["RNAediting"] = sqlmodel.Relationship(back_populates="pvalue")
     pvalue: float
     loci: str
+"""
