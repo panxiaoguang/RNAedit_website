@@ -13,7 +13,6 @@ class JbrowseComponent(rx.NoSSRComponent):
     location: rx.Var[str]
     default_session: rx.Var[dict]
 
-    get_session: rx.EventHandler[lambda x: [x]]
 
 j_browse_linear_genome_view = JbrowseComponent.create
 

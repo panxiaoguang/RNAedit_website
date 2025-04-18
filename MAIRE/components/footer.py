@@ -90,16 +90,16 @@ class FooterV2Style:
 FooterV2Style: FooterV2Style = FooterV2Style()
 
 
-def media(name: str) -> rx.Component:
-    return rx.link(rx.text(name, **FooterV1Style.link), href="#")
+def media(name: str, href: str) -> rx.Component:
+    return rx.link(rx.text(name, **FooterV1Style.link), href= href)
 
 
 def footer_v2() -> rx.vstack:
     return rx.vstack(
         rx.divider(color=rx.color("slate", 11)),
         rx.hstack(
-            rx.text("© 2024 RNAediting", **FooterV2Style.brand),
-            rx.hstack(media("Twitter"), media("Dribble"), media("GitHub")),
+            rx.text("© 2025 mammalian A-I RNA explorer (MAIRE)", **FooterV2Style.brand),
+            rx.hstack(media("Github","https://github.com/panxiaoguang"), media("Blog","https://xiaohanys.top"), media("zhihu","https://www.zhihu.com/people/luo-tian-bao-92")),
             **FooterV2Style.content,
         ),
         **FooterV2Style.base,

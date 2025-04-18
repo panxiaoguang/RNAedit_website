@@ -1,28 +1,7 @@
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-def parse_gene_data(gene_data):
-    transcript_data = gene_data.transcripts
-    transcript_list = []
-    for transcript in transcript_data:
-        if not transcript.cdses and not transcript.utres:
-            continue
-        else:
-            transcript_dict = {
-                "id": transcript.transcript_id,
-                "gene_name": gene_data.symbol,
-                "gene_type": transcript.transcript_type,
-                "strand": "+" if gene_data.strand == 1 else "-",
-                "coding_exons": [(cds.start, cds.end) for cds in transcript.cdses],
-                "utrs": [("UTR", utr.start, utr.end) for utr in transcript.utres],
-                "transcript_start": transcript.start,
-                "transcript_end": transcript.end,
-            }
-            transcript_list.append(transcript_dict)
-    return transcript_list
-
-
-def create_visualization(transcripts, dot_plot_data=None):
+def create_visualization_2(transcripts, dot_plot_data=None):
     """创建可视化图形, 类似UCSC基因浏览器的效果
 
     Args:
@@ -41,7 +20,7 @@ def create_visualization(transcripts, dot_plot_data=None):
             rows=2,
             cols=1,
             shared_xaxes=True,  # 共享X轴
-            row_heights=[0.7, 0.3],  # 基因结构占70%，散点图占30%
+            row_heights=[0.2, 0.8],  # 基因结构占70%，散点图占30%
             vertical_spacing=0.05,
         )  # 子图间距
     else:
@@ -52,15 +31,21 @@ def create_visualization(transcripts, dot_plot_data=None):
     genome_min = min([t["transcript_start"] for t in transcripts])
     genome_max = max([t["transcript_end"] for t in transcripts])
 
-    y_level = len(transcripts)  # 从上到下排列转录本
-
     # 使用统一的颜色
     exon_color = "#1E90FF"  # 蓝色用于外显子
     utr_color = "#FFA500"  # 橙色用于UTR
 
-    # 绘制所有转录本的连接线（最底层）
-    for transcript in transcripts:
-        # 绘制转录本连接线
+    # 一次循环完成所有绘制工作
+    for i, transcript in enumerate(transcripts):
+        y_level = len(transcripts) - i  # 从上到下排列转录本
+        
+        # 获取转录本信息
+        transcript_id = transcript["id"]
+        gene_name = transcript["gene_name"]
+        gene_type = transcript["gene_type"]
+        strand = transcript["strand"]
+        
+        # 1. 绘制转录本连接线（最底层）
         if has_dot_plot:
             fig.add_shape(
                 type="line",
@@ -81,19 +66,8 @@ def create_visualization(transcripts, dot_plot_data=None):
                 y1=y_level,
                 line=dict(color="gray", width=1),
             )
-        y_level -= 1
-
-    # 重置y_level
-    y_level = len(transcripts)
-
-    # 绘制所有转录本的矩形（中间层）
-    for transcript in transcripts:
-        # 获取转录本信息
-        transcript_id = transcript["id"]
-        gene_name = transcript["gene_name"]
-        gene_type = transcript["gene_type"]
-
-        # 绘制编码区外显子
+            
+        # 2. 绘制编码区外显子
         for exon_start, exon_end in transcript["coding_exons"]:
             # 添加外显子矩形
             if has_dot_plot:
@@ -153,7 +127,7 @@ def create_visualization(transcripts, dot_plot_data=None):
                     )
                 )
 
-        # 绘制UTR区域
+        # 3. 绘制UTR区域
         for utr_type, utr_start, utr_end in transcript["utrs"]:
             # 添加UTR矩形（高度较低）
             if has_dot_plot:
@@ -212,50 +186,8 @@ def create_visualization(transcripts, dot_plot_data=None):
                         showlegend=False,
                     )
                 )
-
-        y_level -= 1
-
-    # 如果有散点图数据，添加散点图
-    if has_dot_plot:
-        # 提取x和y值
-        x_values = [point["x"] for point in dot_plot_data]
-        y_values = [point["y"] for point in dot_plot_data]
-
-        # 添加散点图
-        fig.add_trace(
-            go.Scatter(
-                x=x_values,
-                y=y_values,
-                mode="markers",
-                marker=dict(
-                    size=8,
-                    color="red",
-                    symbol="circle",
-                    line=dict(width=1, color="black"),
-                ),
-                hoverinfo="text",
-                text=[
-                    f"Position: {x:,}<br>Value: {y}" for x, y in zip(x_values, y_values)
-                ],
-                name="Data Points",
-            ),
-            row=2,
-            col=1,
-        )
-
-    # 重置y_level
-    y_level = len(transcripts)
-
-    # 最后添加标签和箭头（最上层，但会被矩形遮挡）
-    for transcript in transcripts:
-        # 获取转录本信息
-        transcript_id = transcript["id"]
-        gene_name = transcript["gene_name"]
-        strand = transcript["strand"]
-
-        # 不再添加转录本标签，移除此部分代码
-
-        # 计算箭头位置，避开外显子和UTR区域
+                
+        # 4. 计算箭头位置并绘制箭头
         arrow_positions = []
         transcript_length = (
             transcript["transcript_end"] - transcript["transcript_start"]
@@ -374,7 +306,33 @@ def create_visualization(transcripts, dot_plot_data=None):
                         arrowcolor="gray",
                     )
 
-        y_level -= 1
+    # 如果有散点图数据，添加散点图
+    if has_dot_plot:
+        # 提取x和y值
+        x_values = [point["x"] for point in dot_plot_data]
+        y_values = [point["y"] for point in dot_plot_data]
+        tissues = [point["tissue_name"] for point in dot_plot_data]
+        # 添加散点图
+        fig.add_trace(
+            go.Scatter(
+                x=x_values,
+                y=y_values,
+                mode="markers",
+                marker=dict(
+                    size=8,
+                    color="red",
+                    symbol="circle",
+                    line=dict(width=1, color="black"),
+                ),
+                hoverinfo="text",
+                text=[
+                    f"Position: {x:,}<br>Value: {y}<br>Tissue: {z}" for x, y, z in zip(x_values, y_values, tissues)
+                ],
+                name="RNA editing level",
+            ),
+            row=2,
+            col=1,
+        )
 
     # 设置布局
     if has_dot_plot:
@@ -385,9 +343,8 @@ def create_visualization(transcripts, dot_plot_data=None):
                 'xanchor': 'center',
                 'yanchor': 'top'
             },
-            # height=max(600, 50 * len(transcripts) + 200),  # 根据转录本数量调整高度
             plot_bgcolor="white",
-            margin=dict(l=50, r=50, t=50, b=50),  # 减小左侧边距，因为不再显示转录本ID
+            margin=dict(l=50, r=50, t=50, b=50),
         )
 
         # 更新基因结构子图
@@ -395,7 +352,7 @@ def create_visualization(transcripts, dot_plot_data=None):
         fig.update_xaxes(title="", showticklabels=False, row=1, col=1)
 
         # 更新散点图子图
-        fig.update_yaxes(title="Value", row=2, col=1)
+        fig.update_yaxes(title="Editing Level", row=2, col=1)
         fig.update_xaxes(title="Genomic Position", row=2, col=1)
 
         # 设置X轴范围，确保两个子图共享相同的X轴范围
@@ -415,13 +372,9 @@ def create_visualization(transcripts, dot_plot_data=None):
                 range=[0, len(transcripts) + 1],  # 设置Y轴范围
             ),
             hovermode="closest",
-            # height=max(450, 50 * len(transcripts)),  # 根据转录本数量调整高度
             plot_bgcolor="white",
-            margin=dict(l=50, r=50, t=50, b=50),  # 减小左侧边距，因为不再显示转录本ID
+            margin=dict(l=50, r=50, t=50, b=50),
         )
 
     return fig
-
-
-
 

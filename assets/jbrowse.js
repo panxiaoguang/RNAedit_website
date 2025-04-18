@@ -5,15 +5,15 @@ import {
 } from "@jbrowse/react-linear-genome-view2";
 
 import UCSC from "jbrowse-plugin-ucsc";
-
+//import React, { useState } from 'react'
 export default function JbrowseComponent({ assembly, tracks, location, defaultSession}) {
- 
+  //const [stateSnapshot, setStateSnapshot] = useState('')
   const state = createViewState({
     assembly,
     tracks,
     location,
     plugins: [UCSC],
-    defaultSession,
+    defaultSession
   });
   
   return (

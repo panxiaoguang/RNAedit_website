@@ -1,11 +1,11 @@
-
 import reflex as rx
+
 config = rx.Config(
-    app_name="RNAedit",
-    db_url="sqlite:///reflex.db",
+    app_name="MAIRE",
     tailwind={
         "theme": {
-            "extend": {},
+            "extend": {
+            },
         },
         "plugins": ["@tailwindcss/typography"],
     },
