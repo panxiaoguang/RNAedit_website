@@ -112,7 +112,7 @@ def index() -> rx.Component:
                 class_name="text-3xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent",
             ),
             rx.text(
-                "The largest RNA editing resource for human and other organisms V1.0",
+                "The largest RNA editing resource for Macaca fascicularis and other organisms V1.0",
                 size="4",
             ),
             rx.divider(),
