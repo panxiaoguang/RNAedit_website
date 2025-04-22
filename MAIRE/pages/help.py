@@ -1,71 +1,65 @@
 import reflex as rx
 from ..template import template
 
-data: list[dict[str, str]] = [
-    {
-        "question": "Can I cancel at anytime?",
-        "answers": "Yes, you can cancel anytime no questions are asked while you cancel but we would highly appreciate if you will give us some feedback.",
-    },
-    {
-        "question": "My team has credits. How do we use them?",
-        "answers": "Once your team signs up for a subscription plan. This is where we sit down, grab a cup of coffee and dial in the details.",
-    },
-    {
-        "question": "How does Buridan's UI pricing work?",
-        "answers": "Our subscriptions are tiered. Understanding the task at hand and ironing out the wrinkles is key.",
-    },
-    {
-        "question": "How secure is Buridan/Ui?",
-        "answers": "Protecting the data you trust is our first priority. This part is really crucial in keeping the project in line to completion.",
-    },
-    {
-        "question": "How do I get access to a theme I purchased?",
-        "answers": "If you lose the link for a theme you purchased, don't panic! We've got you covered. You can login to your account, tap your avatar in the upper right corner, and tap Purchases. If you didn't create a login or can't remember the information, you can use our handy Redownload page, just remember to use the same email you originally made your purchases with.",
-    },
-    {
-        "question": "Upgrade License Type",
-        "answers": "There may be times when you need to upgrade your license from the original type you purchased and we have a solution that ensures you can apply your original purchase cost to the new license purchase.",
-    },
-]
 
-
-def txt(string: str, shade: int) -> rx.Component:
-    return rx.text(string, weight="bold", color=rx.color("gray", shade), size="3")
-
-
-def question_and_answer(question: str, answer: str):
-    return rx.hstack(
-        rx.vstack(
-            txt(question, 11),
-            txt(answer, 12),
-            align="start",
-            spacing="2",
-        ),
-        width="100%",
-        align="start",
-        padding="16px 0px",
-        border_top=f"0.75px solid {rx.color('gray', 4)}",
-    )
-
-@rx.page(route="/help")
+@rx.page(route="/help",title="how to use this website")
 @template
 def faq_v1():
     return rx.container(
         rx.flex(
-        rx.heading(
-            "Frequently Asked Questions",
+            rx.heading(
+                "Website Introduction:",
+                size="6",
+                align="left",
+                color_scheme="indigo",
+            ),
+            rx.image(
+                src="https://tncache1-f1.v3mh.com/image/2025/04/22/763f67315ec7f4058acff588e9158caa.png"
+            ),
+            rx.text(
+                "This website is a database site. On the homepage, you can view the website introduction and a simple statistics page, allowing users to intuitively see the types and quantities of data currently stored in the database."
+            ),
+            rx.text("The website currently mainly includes three functions:"),
+            rx.list.ordered(
+                rx.list.item("Search by gene name or genomic coordinates"),
+                rx.list.item(
+                    "Preview editing levels in the transcript illustration by gene name"
+                ),
+                rx.list.item(
+                    "Fully browse all editing sites and their corresponding annotations (repetitive sequences, transcripts, etc.) in the whole genome browser"
+                ),
+            ),
+            rx.heading("Instructions for Using Website Functions:",
             size="6",
-            weight="bold",
-            align="center",
+            align="left",
+            color_scheme="indigo"),
+            rx.heading("Coordinate or Gene Name Search",
+            size="5",
+            align="left",
+            color_scheme="blue"),
+            rx.image(src="https://tncache1-f1.v3mh.com/image/2025/04/22/09d5bceb9895f3ea485f1267cd91176b.png"),
+            rx.text("As shown in the figure, after selecting the species and the corresponding genome version, you can choose either coordinates or gene name as input. By clicking the search button, you can view the corresponding editing sites, which are presented in a table format."),
+            rx.text("Note that clicking the gene button will directly navigate to the Gene Card page."),
+            rx.image(src="https://tncache1-f1.v3mh.com/image/2025/04/22/f7fed3d94e8931792079267c8128c0cc.png"),
+            rx.text("As shown above, users can click the ExFun button to see additional annotations in the pop-up dialog, mainly regarding amino acid changes in the corresponding transcript."),
+            rx.image(src="https://tncache1-f1.v3mh.com/image/2025/04/22/b60d620c62538053e1f0e51db3f9f1f2.png"),
+            rx.text("Users can also click the Editing level button to view editing levels of each editing site in different tissues."),
+            rx.heading("Gene Landscape",
+            size="5",
+            align="left",
+            color_scheme="blue"),
+            rx.image(src="https://tncache1-f1.v3mh.com/image/2025/04/22/53742b2ec4e8d60374c93acba15a1f80.png"),
+            rx.text("As shown above, after selecting species and genome version, enter a gene name to simultaneously view transcripts and editing levels of all editing sites in that gene, which provides a more intuitive overview."),
+            rx.heading("Browser",
+            size="5",
+            align="left",
+            color_scheme="blue"),
+            rx.image(src="https://tncache1-f1.v3mh.com/image/2025/04/22/de6ad349b091343291011df92a119d0a.png"),
+            rx.text("Users can directly click the Jbrowse button in the navigation bar to enter the global browsing page. On this page, users will see all editing sites, as well as corresponding repetitive elements and transcripts, in Jbrowse2. Users can zoom in or out, and also jump to specific locations by entering genome coordinate positions at the top."),
+            direction="column",
+            spacing="2"
         ),
-        *[question_and_answer(item["question"], item["answers"]) for item in data],
-        direction="column",
         width="100%",
-        justify="center",
-        class_name="p-5",
-    ),
-        width="100%",
-        class_name="mt-20"
+        class_name="mt-20",
+        
     )
-    
-    

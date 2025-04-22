@@ -5,6 +5,8 @@ from typing import List, Dict
 from ..styles import info, tooltip
 
 
+##################################################################################################
+################data structure for database parse:
 def data_schema(record: RNAediting) -> dict:
     return {
         "id": record.id,
@@ -12,7 +14,7 @@ def data_schema(record: RNAediting) -> dict:
         "Position": record.position,
         "Ref": record.ref,
         "Ed": record.alt,
-        "Strand": record.gene.strand,
+        #"Strand": record.gene.strand, ## conghui said we shouldn't show strand
         "Location": record.location,
         "Repeats": "-/-" if record.repeat is None else record.repeat.repeatclass,
         "Gene": "-/-" if record.gene.symbol == " " else record.gene.symbol,
@@ -42,11 +44,12 @@ def editing_level_schema(records: EditingLevel, samples: List[str]) -> List[dict
     return final_data
 
 
-def create_table_header(title: Dict[str,str]):
+def create_table_header(title: Dict[str, str]):
     return rx.tooltip(
-            rx.table.column_header_cell(title["title"], justify="center"),
-            content=title["tip"])
-    
+        rx.table.column_header_cell(title["title"], justify="center"),
+        content=title["tip"],
+    )
+
 
 def render_exfun_table_row(row_data: Dict[str, str]):
     return rx.table.row(
@@ -66,151 +69,70 @@ def render_exfun_table_row(row_data: Dict[str, str]):
     )
 
 
-def render_exfun_dialog(row_data: Dict[str, str]):
-    return rx.dialog.root(
-        rx.dialog.trigger(
-            rx.button(
-                row_data["ExFun"],
-                variant="solid",
-                cursor="pointer",
-                color_scheme=rx.cond(
-                    row_data["ExFun"] == "Nonsynonymous", "orange", "sky"
-                ),
-            )
-        ),
-        rx.dialog.content(
-            rx.dialog.title("Extra function annotation:"),
-            rx.inset(
-                rx.table.root(
-                    rx.table.header(
-                        rx.table.row(
-                            rx.table.column_header_cell("Ensembl ID", justify="center"),
-                            rx.table.column_header_cell(
-                                "Amino change", justify="center"
-                            ),
-                        ),
-                    ),
-                    rx.table.body(
-                        rx.foreach(
-                            SearchByPositionState.exfun_data, render_exfun_table_row
-                        )
-                    ),
-                ),
-                side="x",
-                margin_top="24px",
-                margin_bottom="24px",
-            ),
-            rx.flex(
-                rx.dialog.close(
-                    rx.button(
-                        "Close",
-                        variant="soft",
-                        color_scheme="gray",
-                    ),
-                ),
-                spacing="3",
-                justify="end",
-            ),
-        ),
-        on_open_change=lambda c: SearchByPositionState.get_exfun_data(
-            c, row_data["id"]
-        ),
-    )
-
-
-def render_row(data: Dict[str, str]):
-    return rx.table.row(
-        rx.table.cell(
-            rx.button(
-                rx.icon("arrow-big-right-dash",class_name="hover:rotate-90 transition-transform duration-200 ease-in-out"),
-                variant="solid",
-                cursor="pointer",
-                color_scheme="indigo",
-                on_click=SearchByPositionState.render_editing_level_plot(data["id"]),
-            ),
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Chr"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Position"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Ref"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Ed"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Strand"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Location"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Repeats"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.cond(
-                data["Gene"] == "-/-",
-                rx.text(data["Gene"]),
-                rx.button(
-                    data["Gene"],
-                    variant="solid",
-                    cursor="pointer",
-                    color_scheme="grass",
-                    on_click=rx.redirect(
-                        f"https://www.genecards.org/cgi-bin/carddisp.pl?gene={data['Gene']}",
-                        is_external=True,
-                    ),
-                ),
-            ),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Region"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Samples"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.text(data["Tissues"]),
-            cursor="pointer",
-            justify="center",
-        ),
-        rx.table.cell(
-            rx.cond(
-                data["ExFun"] == "-",
-                rx.text(data["ExFun"]),
-                render_exfun_dialog(data),
-            ),
-            cursor="pointer",
-            justify="center",
-        ),
-        _hover={"bg": rx.color(color="gray", shade=4)},
-        align="center",
-        white_space="nowrap",
-    )
+total_tissues = [
+    "caudate nucleus",
+    "inferior frontal gyrus",
+    "middle frontal gyrus",
+    "posterior parahippocampal gyrus",
+    "straight gyrus",
+    "occipital gyrus",
+    "anterior cingulate gyrus",
+    "cerebellum",
+    "claustrum",
+    "dentate gyrus",
+    "globus pallidus",
+    "inferior occipital gyrus",
+    "inferior temporal gyrus",
+    "insular cortex",
+    "lateral occipitotemporal gyrus",
+    "middle temporal gyrus",
+    "pons",
+    "postcentral gyrus",
+    "posterior cingulate gyrus",
+    "precentral gyrus",
+    "septum",
+    "superior frontal gyrus",
+    "superior temporal gyrus",
+    "supramarginal gyrus",
+    "angular gyrus",
+    "preoptic area",
+    "thalamus",
+    "annectant gyrus",
+    "cuneus",
+    "putamen",
+    "superior parietal lobule",
+    "amygdala",
+    "anterior hypothalamus",
+    "entorhinal cortex",
+    "geniculate nucleus",
+    "orbital gyrus",
+    "posterior hippocampus",
+    "posterior hypothalamus",
+    "spinal cord dorsal",
+    "subiculum",
+    "substantia nigra",
+    "superior colliculus",
+    "spinal cord ventral",
+    "anterior hippocampus",
+    "medulla",
+    "midbrain",
+]
+table_colums = [
+    {"title": "Editing Level", "tip": "Click to show editing level plots in bottom"},
+    {"title": "Chr", "tip": "Chromosome"},
+    {"title": "Position", "tip": "Editing Position"},
+    {"title": "Ref", "tip": "Nucleotide on reference"},
+    {"title": "Ed", "tip": "Alt nucleotide"},
+    #{"title": "Strand", "tip": "Gene Strand not editing strand"},
+    {"title": "Location", "tip": "Whether the editing is in the repeat region or not"},
+    {"title": "Repeats", "tip": "Repeat Class"},
+    {"title": "Gene", "tip": "Gene Symbol"},
+    {"title": "Region", "tip": "Whether the editing is in the coding region or not"},
+    {"title": "NSamples", "tip": "How many samples have this editing"},
+    {"title": "NTissues", "tip": "How many tissues have this editing"},
+    {"title": "ExFun", "tip": "Extra annotation in Amino Acid Change"},
+]
+#################################################################################################
 
 
 class SearchByPositionState(rx.State):
@@ -230,54 +152,7 @@ class SearchByPositionState(rx.State):
     exfun_data: List[Dict[str, str]] = []
     editing_level: List[Dict[str, int]] = []
     table_find: bool = False
-    _all_tissues: List[str] = [
-        "caudate nucleus",
-        "inferior frontal gyrus",
-        "middle frontal gyrus",
-        "posterior parahippocampal gyrus",
-        "straight gyrus",
-        "occipital gyrus",
-        "anterior cingulate gyrus",
-        "cerebellum",
-        "claustrum",
-        "dentate gyrus",
-        "globus pallidus",
-        "inferior occipital gyrus",
-        "inferior temporal gyrus",
-        "insular cortex",
-        "lateral occipitotemporal gyrus",
-        "middle temporal gyrus",
-        "pons",
-        "postcentral gyrus",
-        "posterior cingulate gyrus",
-        "precentral gyrus",
-        "septum",
-        "superior frontal gyrus",
-        "superior temporal gyrus",
-        "supramarginal gyrus",
-        "angular gyrus",
-        "preoptic area",
-        "thalamus",
-        "annectant gyrus",
-        "cuneus",
-        "putamen",
-        "superior parietal lobule",
-        "amygdala",
-        "anterior hypothalamus",
-        "entorhinal cortex",
-        "geniculate nucleus",
-        "orbital gyrus",
-        "posterior hippocampus",
-        "posterior hypothalamus",
-        "spinal cord dorsal",
-        "subiculum",
-        "substantia nigra",
-        "superior colliculus",
-        "spinal cord ventral",
-        "anterior hippocampus",
-        "medulla",
-        "midbrain",
-    ]
+    _all_tissues: List[str] = total_tissues
 
     @rx.var
     def show_table(self) -> bool:
@@ -353,21 +228,7 @@ class SearchByPositionState(rx.State):
                 if records is not None:
                     self.main_data = [data_schema(record) for record in records]
                     self.paginated_data = self.main_data[:10]
-                    self.column_names = [
-                        {"title":"Editing Level","tip":"Click to show editing level plots in bottom"},
-                        {"title":"Chr","tip":"Chromosome"},
-                        {"title":"Position","tip":"Editing Position"},
-                        {"title":"Ref","tip":"Nucleotide on reference"},
-                        {"title":"Ed","tip":"Alt nucleotide"},
-                        {"title":"Strand","tip":"Gene Strand not editing strand"},
-                        {"title":"Location","tip":"Whether the editing is in the repeat region or not"},
-                        {"title":"Repeats","tip":"Repeat Class"},
-                        {"title":"Gene","tip":"Gene Symbol"},
-                        {"title":"Region","tip":"Whether the editing is in the coding region or not"},
-                        {"title":"NSamples","tip":"How many samples have this editing"},
-                        {"title":"NTissues","tip":"How many tissues have this editing"},
-                        {"title":"ExFun","tip":"Extra annotation in Amino Acid Change"},
-                    ]
+                    self.column_names = table_colums
                     self.number_of_rows = len(self.main_data)
                     self.total_pages = (
                         self.number_of_rows + self.current_limit - 1
@@ -387,21 +248,7 @@ class SearchByPositionState(rx.State):
                         data_schema(record) for record in records.rnaediting
                     ]
                     self.paginated_data = self.main_data[:10]
-                    self.column_names = [
-                        {"title":"Editing Level","tip":"Click to show editing level plots in bottom"},
-                        {"title":"Chr","tip":"Chromosome"},
-                        {"title":"Position","tip":"Editing Position"},
-                        {"title":"Ref","tip":"Nucleotide on reference"},
-                        {"title":"Ed","tip":"Alt nucleotide"},
-                        {"title":"Strand","tip":"Gene Strand not editing strand"},
-                        {"title":"Location","tip":"Whether the editing is in the repeat region or not"},
-                        {"title":"Repeats","tip":"Repeat Class"},
-                        {"title":"Gene","tip":"Gene Symbol"},
-                        {"title":"Region","tip":"Whether the editing is in the coding region or not"},
-                        {"title":"NSamples","tip":"How many samples have this editing"},
-                        {"title":"NTissues","tip":"How many tissues have this editing"},
-                        {"title":"ExFun","tip":"Extra annotation in Amino Acid Change"},
-                    ]
+                    self.column_names = table_colums
                     self.number_of_rows = len(self.main_data)
                     self.total_pages = (
                         self.number_of_rows + self.current_limit - 1
@@ -433,6 +280,160 @@ class SearchByPositionState(rx.State):
         self.genome_version = "macFas5"
         self.region = "chr1:117451-18582865"
         return SearchByPositionState.get_data_from_database()
+
+
+#### util functions for Table UI
+#################################################################################
+def render_exfun_dialog(row_data: Dict[str, str]):
+    return rx.dialog.root(
+        rx.dialog.trigger(
+            rx.button(
+                row_data["ExFun"],
+                variant="solid",
+                cursor="pointer",
+                color_scheme=rx.cond(
+                    row_data["ExFun"] == "Nonsynonymous", "orange", "sky"
+                ),
+            )
+        ),
+        rx.dialog.content(
+            rx.dialog.title("Extra function annotation:"),
+            rx.inset(
+                rx.table.root(
+                    rx.table.header(
+                        rx.table.row(
+                            rx.table.column_header_cell("Ensembl ID", justify="center"),
+                            rx.table.column_header_cell(
+                                "Amino change", justify="center"
+                            ),
+                        ),
+                    ),
+                    rx.table.body(
+                        rx.foreach(
+                            SearchByPositionState.exfun_data, render_exfun_table_row
+                        )
+                    ),
+                ),
+                side="x",
+                margin_top="24px",
+                margin_bottom="24px",
+            ),
+            rx.flex(
+                rx.dialog.close(
+                    rx.button(
+                        "Close",
+                        variant="soft",
+                        color_scheme="gray",
+                    ),
+                ),
+                spacing="3",
+                justify="end",
+            ),
+        ),
+        on_open_change=lambda c: SearchByPositionState.get_exfun_data(
+            c, row_data["id"]
+        ),
+    )
+
+
+def render_row(data: Dict[str, str]):
+    return rx.table.row(
+        rx.table.cell(
+            rx.button(
+                rx.icon(
+                    "arrow-big-right-dash",
+                    class_name="hover:rotate-90 transition-transform duration-200 ease-in-out",
+                ),
+                variant="solid",
+                cursor="pointer",
+                color_scheme="indigo",
+                on_click=SearchByPositionState.render_editing_level_plot(data["id"]),
+            ),
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Chr"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Position"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Ref"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Ed"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        #rx.table.cell(
+        #    rx.text(data["Strand"]),
+        #    cursor="pointer",
+        #    justify="center",
+        #),
+        rx.table.cell(
+            rx.text(data["Location"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Repeats"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.cond(
+                data["Gene"] == "-/-",
+                rx.text(data["Gene"]),
+                rx.button(
+                    data["Gene"],
+                    variant="solid",
+                    cursor="pointer",
+                    color_scheme="grass",
+                    on_click=rx.redirect(
+                        f"https://www.genecards.org/cgi-bin/carddisp.pl?gene={data['Gene']}",
+                        is_external=True,
+                    ),
+                ),
+            ),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Region"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Samples"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.text(data["Tissues"]),
+            cursor="pointer",
+            justify="center",
+        ),
+        rx.table.cell(
+            rx.cond(
+                data["ExFun"] == "-",
+                rx.text(data["ExFun"]),
+                render_exfun_dialog(data),
+            ),
+            cursor="pointer",
+            justify="center",
+        ),
+        _hover={"bg": rx.color(color="gray", shade=4)},
+        align="center",
+        white_space="nowrap",
+    )
+
+
 def create_pagination():
     return rx.hstack(
         rx.hstack(
@@ -487,7 +488,13 @@ def create_pagination():
     )
 
 
-@rx.page("/search_by_position")
+#################################################################################
+#################################################################################
+#################################################################################
+
+
+#### main UI for this page:
+@rx.page("/search_by_position",title="Search By Position")
 @template
 def search_by_position():
     return rx.flex(
@@ -596,8 +603,8 @@ def search_by_position():
                             "Example",
                             color_scheme="violet",
                             cursor="pointer",
-                            on_click=SearchByPositionState.show_example
-                        )
+                            on_click=SearchByPositionState.show_example,
+                        ),
                     ),
                     direction="column",
                     width="100%",

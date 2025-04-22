@@ -116,12 +116,12 @@ tracks = [
         "type": "BedTabixAdapter",
         "bedGzLocation": {
           "locationType": "UriLocation",
-          "uri": "https://lz.qaiu.top/parser?url=https://caiyun.139.com/m/i?2mKnFvjWcrcld&pwd=p4zq"
+          "uri": "https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/pIHGIlaU"
         },
         "index": {
           "location": {
             "locationType": "UriLocation",
-            "uri": "https://lz.qaiu.top/parser?url=https://caiyun.139.com/m/i?2mKnFfiNTX7l1&pwd=ens5"
+            "uri": "https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/iJHGISPV"
           }
         }
       },
@@ -268,7 +268,7 @@ class BrowseState(rx.State):
     location: str = "chr1:12185755..12191809"
     default_session: dict = default_session
 
-@rx.page(route="/jbrowse_view")
+@rx.page(route="/jbrowse_view",title="editing browse",)
 @template
 def jbrowse_view() -> rx.Component:
     return rx.flex(

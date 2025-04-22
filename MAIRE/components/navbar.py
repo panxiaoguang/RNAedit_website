@@ -15,7 +15,10 @@ def navbar_link(text: str, url: str) -> rx.Component:
 def navbar() -> rx.Component:
     return rx.box(
         rx.hstack(
-            rx.image(src="/logo.png", width="150px", height="50px"),
+            rx.link(
+                rx.image(src="/logo.png", width="150px", height="50px"),
+                href="/"
+            ),
             rx.hstack(
                 navbar_link("Home", "/"),
                 rx.menu.root(
@@ -54,8 +57,8 @@ def navbar() -> rx.Component:
                     ),
                 ),
                 navbar_link("JBrowse", "/jbrowse_view"),
-                navbar_link("Publications", "/#"),
-                # navbar_link("Help", "/help"),
+                navbar_link("Publications", "/pub"),
+                navbar_link("Help", "/help"),
                 class_name="space-x-4 justify-items-end py-5",
             ),
             class_name="px-9  justify-between content-start items-center",

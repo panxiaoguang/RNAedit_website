@@ -92,7 +92,7 @@ class ViewByGeneState(rx.State):
         self.genome_version = "macFas5"
         self.gene_symbol = "ACTA1"
         return ViewByGeneState.get_gene_view_data()
-@rx.page("/view_by_gene")
+@rx.page("/view_by_gene",title="View RNA Editing by Genes",)
 @template
 def view_by_genes() -> rx.Component:
     return rx.flex(
