@@ -124,7 +124,7 @@ def index() -> rx.Component:
             rx.text(
                 "Don't know how to use it? Please check the help page.",
                  rx.link("help",href="/help", label="Help"),
-                size="1",
+                size="2",
                 color="red",
             ),
             rx.flex(
