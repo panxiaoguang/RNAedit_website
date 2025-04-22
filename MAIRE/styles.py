@@ -10,10 +10,14 @@ tooltip = {
         "paddingBottom": "0px",
         "justifyContent": "space-between",
         "textTransform": "capitalize",
+        
     },
     "label_style": {
         "color": rx.color("slate", 10),
         "fontWeight": "500",
+        "fontSize": "0.5rem",
+        
+
     },
     "content_style": {
         "background": rx.color_mode_cond("oklch(0.97 0.00 0)", "oklch(0.14 0.00 286)"),
@@ -24,6 +28,7 @@ tooltip = {
         "lineHeight": "1.25rem",
         "fontWeight": "500",
         "letterSpacing": "-0.01rem",
+        
         "minWidth": "8rem",
         "width": "175px",
         "padding": "0.375rem 0.625rem ",

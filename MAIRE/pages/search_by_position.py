@@ -122,7 +122,7 @@ def render_row(data: Dict[str, str]):
     return rx.table.row(
         rx.table.cell(
             rx.button(
-                rx.icon("arrow-big-right-dash"),
+                rx.icon("arrow-big-right-dash",class_name="hover:rotate-90 transition-transform duration-200 ease-in-out"),
                 variant="solid",
                 cursor="pointer",
                 color_scheme="indigo",
@@ -220,7 +220,7 @@ class SearchByPositionState(rx.State):
     gene_symbol: str
     main_data: List[Dict[str, str]] = []
     paginated_data: List[Dict[str, str]] = []
-    column_names: List[Dict[str, str]] = {}
+    column_names: List[Dict[str, str]] = []
     limits: List[str] = ["10", "15", "20", "30", "50"]
     current_limit: int = 10
     offset: int = 0
@@ -329,7 +329,7 @@ class SearchByPositionState(rx.State):
     def clear_data(self):
         self.main_data = []
         self.paginated_data = []
-        self.column_names = {}
+        self.column_names = []
         self.editing_level = []
 
     @rx.event
