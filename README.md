@@ -130,7 +130,7 @@ python upload_data_to_database.py
 ### 3. 构建 Docker 镜像并运行
 
 等所有数据上传完毕后，就可以运行项目了，端口 7900 可以改成任意的端口即可
-
+修改 `rxconfig.py`文件，删除`db_url`，因为我们用`--build-arg` 来传入
 ```bash
 ### 构建镜像
 docker build --build-arg PORT=7900 --build-arg DB_URL=postgresql://postgres:admin@<your-ip-address>:5432/reflexdb -t MAIRE .

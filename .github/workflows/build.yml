@@ -31,3 +31,4 @@ jobs:
           tags: xiaohanys91/rnaedit:1.0.2
           build-args: |
             PORT=7860
+            DB_URL=${{ secrets.DB_URL }}

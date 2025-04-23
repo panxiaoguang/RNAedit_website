@@ -5,6 +5,7 @@
 ARG PORT
 # Only set for local/direct access. When TLS is used, the API_URL is assumed to be the same as the frontend.
 ARG API_URL
+ARG DB_URL
 # It uses a reverse proxy to serve the frontend statically and proxy to backend
 # from a single exposed port, expecting TLS termination to be handled at the
 # edge by the given platform.
@@ -33,9 +34,9 @@ COPY . .
 
 ARG PORT 
 ARG API_URL 
-
+ARG DB_URL
 # Download other npm dependencies and compile frontend
-RUN API_URL=${API_URL:-http://localhost:$PORT} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
+RUN API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
 
 
 # Final image with only necessary files
@@ -46,8 +47,8 @@ RUN apt-get update -y && apt-get install -y caddy redis-server && rm -rf /var/li
 
 ARG PORT
 ARG API_URL
-
-ENV PATH="/app/.venv/bin:$PATH" PORT=$PORT API_URL=${API_URL:-http://localhost:$PORT} REDIS_URL=redis://localhost PYTHONUNBUFFERED=1
+ARG DB_URL
+ENV PATH="/app/.venv/bin:$PATH" PORT=$PORT API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} REDIS_URL=redis://localhost PYTHONUNBUFFERED=1
 
 WORKDIR /app
 COPY --from=builder /app /app
