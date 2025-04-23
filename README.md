@@ -40,7 +40,9 @@ ALTER USER postgres WITH PASSWORD 'admin';
 listen_addresses = '*'
 ```
 修改`pg_hba.conf`文件，添加以下内容：
+
 ```
+##注意不要有···中间是tab 分割
 host    all             all             0.0.0.0/0               md5
 ```
 
@@ -105,16 +107,19 @@ reflex db migrate
 - daba_path: 数据文件所在的路径
 - data_files: 数据文件的名称列表
 
+所有的数据文件可以从该链接获取：
+[https://sid.erda.dk/cgi-sid/ls.py?share_id=ehwzuQDtFN](https://sid.erda.dk/cgi-sid/ls.py?share_id=ehwzuQDtFN)
+
 ```python
 if __name__ == "__main__":
-    data_path = "/home/panxiaoguang/Projects/maire_data"
+    data_path = "<your_maire_data_path>"
     data_files = [
-        "sample_Gene_data_Macaque.txt",
+        "Gene_data_Macaque.txt",
         "repeats.tsv",
         "tissues.tsv",
         "AA_changes.tsv",
-        "sample_RNA_editing_data.txt",
-        "sample_RE_levels.tsv",
+        "RNA_editing_data.txt",
+        "RE_levels.tsv",
     ]
 ```
 
