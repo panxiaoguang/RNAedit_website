@@ -31,7 +31,20 @@ CREATE DATABASE reflexdb;
 ALTER USER postgres WITH PASSWORD 'admin';
 ```
 
-退出psql 后重启数据库：
+退出psql 
+
+接下来要配置公开访问，因为构建docker 过程中需要该 DB_URL 链接，而 Docker 无法直接和宿主机通讯。
+更改配置文件：
+修改`postgresql.conf`文件，添加以下内容：
+```
+listen_addresses = '*'
+```
+修改`pg_hba.conf`文件，添加以下内容：
+```
+host    all             all             0.0.0.0/0               md5
+```
+
+重启数据库：
 ```
 sudo service postgresql restart
 ```
@@ -43,7 +56,10 @@ pg_ctl -D ~/my_pgdata -l logfile restart
 ```
 postgresql://postgres:admin@localhost:5432/reflexdb
 ```
-
+而公开访问链接为
+```
+postgresql://postgres:admin@<Your-IP>:5432/reflexdb
+```
 ### 2. 上传数据到数据库
 
 克隆本仓库到本地目录
@@ -62,7 +78,7 @@ pip install -r requirements.txt
 config = rx.Config(
     app_name="MAIRE",
     show_built_with_reflex=False, ## to remove the badge
-    db_url="postgresql://postgres:admin@localhost:5432/reflexdb",
+    db_url="postgresql://postgres:admin@<your-ip-address>:5432/reflexdb",
     tailwind={
         "theme": {
             "extend": {
@@ -112,7 +128,7 @@ python upload_data_to_database.py
 
 ```bash
 ### 构建镜像
-docker build --build-arg PORT=7900 --build-arg DB_URL=postgresql://postgres:admin@localhost:5432/reflexdb -t MAIRE .
+docker build --build-arg PORT=7900 --build-arg DB_URL=postgresql://postgres:admin@<your-ip-address>:5432/reflexdb -t MAIRE .
 
 ### 运行镜像
 docker push -d -p 7900:7900 MAIRE
