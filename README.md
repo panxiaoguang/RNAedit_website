@@ -106,13 +106,17 @@ if __name__ == "__main__":
 python upload_data_to_database.py
 ```
 
-### 3. 运行项目
+### 3. 构建 Docker 镜像并运行
 
-等所有数据上传完毕后，就可以运行项目了：
+等所有数据上传完毕后，就可以运行项目了，端口 7900 可以改成任意的端口即可
 
 ```bash
-docker pull xiaohanys91/rnaedit:latest
-docker run -d -p <PORT>:<PORT> xiaohanys91/rnaedit:latest
+### 构建镜像
+docker build --build-arg PORT=7900 --build-arg DB_URL=postgresql://postgres:admin@localhost:5432/reflexdb -t MAIRE .
+
+### 运行镜像
+docker push -d -p 7900:7900 MAIRE
 ```
 
-此时，网站已经可以在http:localhost:<PORT>上访问了。
+
+此时，网站已经可以在http://localhost:7900上访问了。
