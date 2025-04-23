@@ -1,4 +1,4 @@
-:7860
+:{$PORT}
 
 encode gzip
 

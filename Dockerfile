@@ -2,7 +2,7 @@
 # to services like Render, Railway, Heroku, GCP, and others.
 
 # If the service expects a different port, provide it here (f.e Render expects port 10000)
-ARG PORT=7860
+ARG PORT
 # Only set for local/direct access. When TLS is used, the API_URL is assumed to be the same as the frontend.
 ARG API_URL
 ARG DB_URL
