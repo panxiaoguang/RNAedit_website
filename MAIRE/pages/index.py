@@ -2,7 +2,7 @@ import reflex as rx
 from ..template import template
 from ..styles import info, tooltip
 from ..models import Tissue, RNAeditingtissuelink
-from sqlmodel import select
+from sqlmodel import select, inspect
 from sqlalchemy import func
 from typing import List, Dict
 
@@ -17,6 +17,9 @@ def site_numbers_schema(result: tuple) -> List[Dict[str, int]]:
 class IndexState(rx.State):
     @rx.var
     async def get_numbers_in_tissues(self) -> List[Dict[str, int]]:
+        inspector = inspect(rx.model.get_engine())
+        if not inspector.has_table("tissue"):
+            return []
         with rx.session() as session:
             statement = (
                 select(Tissue.name, func.count(RNAeditingtissuelink.rnaediting_id))

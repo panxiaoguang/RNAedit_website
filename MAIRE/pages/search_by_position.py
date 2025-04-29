@@ -262,18 +262,24 @@ class SearchByPositionState(rx.State):
     @rx.event
     async def get_exfun_data(self, value: bool, rnaedit_id: int):
         with rx.session() as session:
-            records = session.get(RNAediting, rnaedit_id)
-            self.exfun_data = [
-                amino_change_schema(record) for record in records.aminochanges
-            ]
+            records = session.exec(
+                RNAediting.select().where(RNAediting.id == rnaedit_id)
+            ).one()
+            if records is not None:
+                self.exfun_data = [
+                    amino_change_schema(record) for record in records.aminochanges
+                ]
 
     @rx.event
     async def render_editing_level_plot(self, rnaedit_id: int):
         with rx.session() as session:
-            records = session.get(RNAediting, rnaedit_id)
-            self.editing_level = editing_level_schema(
-                records.editinglevel, self._all_tissues
-            )
+            records = session.exec(
+                RNAediting.select().where(RNAediting.id == rnaedit_id)
+            ).one()
+            if records is not None:
+                self.editing_level = editing_level_schema(
+                    records.editinglevel, self._all_tissues
+                )
 
     @rx.event
     def show_example(self):
