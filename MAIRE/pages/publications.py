@@ -20,6 +20,7 @@ def pub_view(picture: str, content: Callable[[], rx.Component]) -> rx.Component:
             width="100%",
         ),
         width="60vw",
+        class_name="animate__animated animate__bounceInDown"
     )
 
 
