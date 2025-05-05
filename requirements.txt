@@ -31,8 +31,8 @@ python-multipart==0.0.20
 python-socketio==5.13.0
 PyYAML==6.0.2
 redis==5.2.1
-reflex==0.7.9
-reflex-hosting-cli==0.1.42
+reflex
+reflex-hosting-cli
 rich==13.9.4
 shellingham==1.5.4
 simple-websocket==1.1.0
