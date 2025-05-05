@@ -28,7 +28,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: xiaohanys91/rnaedit:1.0.2
+          tags: xiaohanys91/rnaedit:1.0.3
           build-args: |
             PORT=7860
             DB_URL=${{ secrets.DB_URL }}
