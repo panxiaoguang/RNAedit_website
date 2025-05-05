@@ -9,7 +9,7 @@ ARG DB_URL
 # It uses a reverse proxy to serve the frontend statically and proxy to backend
 # from a single exposed port, expecting TLS termination to be handled at the
 # edge by the given platform.
-FROM python:3.13 as builder
+FROM python:3.13 AS builder
 
 RUN mkdir -p /app/.web
 RUN python -m venv /app/.venv
