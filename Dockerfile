@@ -42,9 +42,7 @@ FROM python:3.13-slim
 # Install Caddy and redis server inside image
 RUN apt-get update -y && apt-get install -y caddy redis-server && rm -rf /var/lib/apt/lists/*
 
-ARG PORT
-ARG API_URL
-ARG DB_URL
+ARG PORT API_URL DB_URL
 ENV PATH="/app/.venv/bin:$PATH" PORT=$PORT API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} REDIS_URL=redis://localhost PYTHONUNBUFFERED=1
 
 WORKDIR /app
