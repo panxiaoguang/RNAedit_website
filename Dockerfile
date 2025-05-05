@@ -2,10 +2,8 @@
 # to services like Render, Railway, Heroku, GCP, and others.
 
 # If the service expects a different port, provide it here (f.e Render expects port 10000)
-ARG PORT
+ARG PORT API_URL DB_URL
 # Only set for local/direct access. When TLS is used, the API_URL is assumed to be the same as the frontend.
-ARG API_URL
-ARG DB_URL
 # It uses a reverse proxy to serve the frontend statically and proxy to backend
 # from a single exposed port, expecting TLS termination to be handled at the
 # edge by the given platform.
@@ -19,6 +17,7 @@ WORKDIR /app
 
 # Install python app requirements and reflex in the container
 COPY requirements.txt .
+
 RUN pip install -r requirements.txt
 
 # Install reflex helper utilities like bun/node
@@ -32,9 +31,7 @@ RUN if [ -f .web/bun.lockb ]; then cd .web && ~/.local/share/reflex/bun/bin/bun 
 # Copy local context to `/app` inside container (see .dockerignore)
 COPY . .
 
-ARG PORT 
-ARG API_URL 
-ARG DB_URL
+ARG PORT API_URL DB_URL
 # Download other npm dependencies and compile frontend
 RUN API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
 
