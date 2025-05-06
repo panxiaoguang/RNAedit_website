@@ -5,6 +5,4 @@ __pycache__/
 .states
 .venv
 .web
-alembic/
-alembic.ini
 
