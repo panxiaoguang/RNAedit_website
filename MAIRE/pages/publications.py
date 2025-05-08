@@ -20,7 +20,7 @@ def pub_view(picture: str, content: Callable[[], rx.Component]) -> rx.Component:
             width="100%",
         ),
         width="60vw",
-        class_name="animate__animated animate__bounceInDown"
+        class_name="animate__animated animate__bounceInDown",
     )
 
 
@@ -48,19 +48,25 @@ def publications() -> rx.Component:
                         "Li, C.,Lv, W., He, Z., et al. Brain-wide A-I RNA Editing Analysis in Macaque and Insights into Nervous System Evolution and Functions. Nucleic Acids Res. (2025)."
                     ),
                     rx.text("In review.", color_scheme="orange"),
+                    rx.link("click to view", href="#"),
                     direction="column",
-                    width="75%"
+                    width="75%",
                 ),
             ),
             pub_view(
                 "/CB_cover.png",
                 rx.flex(
                     rx.text(
-                    "Huang, J., Lin, L., Dong, Z. et al. A porcine brain-wide RNA editing landscape. Commun Biol 4, 717 (2021)."
-                ),direction="column",
-                width="75%"
+                        "Huang, J., Lin, L., Dong, Z. et al. A porcine brain-wide RNA editing landscape. Commun Biol 4, 717 (2021)."
+                    ),
+                    rx.link(
+                        "click to view",
+                        href="https://www.nature.com/articles/s42003-021-02238-3",
+                        is_external=True,
+                    ),
+                    direction="column",
+                    width="75%",
                 ),
-                
             ),
             direction="column",
             spacing="2",

@@ -49,7 +49,7 @@ class FooterV1Style:
     )
 
 
-FooterV1Style: FooterV1Style = FooterV1Style()
+FooterV1Style = FooterV1Style()
 
 
 active: Color = rx.color("slate", 12)
@@ -87,18 +87,18 @@ class FooterV2Style:
     )
 
 
-FooterV2Style: FooterV2Style = FooterV2Style()
+FooterV2Style = FooterV2Style()
 
 
 def media(name: str, href: str) -> rx.Component:
     return rx.link(rx.text(name, **FooterV1Style.link), href= href)
 
 
-def footer_v2() -> rx.vstack:
+def footer_v2() -> rx.Component:
     return rx.vstack(
         rx.divider(color=rx.color("slate", 11)),
         rx.hstack(
-            rx.text("© 2025 mammalian A-I RNA explorer (MAIRE)", **FooterV2Style.brand),
+            rx.text("© 2025, Department of Biomedicine, Aarhus University", **FooterV2Style.brand),
             rx.hstack(media("Github","https://github.com/panxiaoguang"), media("Blog","https://xiaohanys.top"), media("zhihu","https://www.zhihu.com/people/luo-tian-bao-92")),
             **FooterV2Style.content,
         ),

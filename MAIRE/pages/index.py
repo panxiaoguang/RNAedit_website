@@ -212,7 +212,7 @@ def index() -> rx.Component:
                         rx.recharts.y_axis(
                             type_="number",
                             hide=False,
-                            width=25,
+                            width=80,
                         ),
                         rx.recharts.x_axis(
                             data_key="tissue",
