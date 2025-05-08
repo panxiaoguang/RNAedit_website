@@ -133,10 +133,10 @@ python upload_data_to_database.py
 修改 `rxconfig.py`文件，删除`db_url`，因为我们用`--build-arg` 来传入
 ```bash
 ### 构建镜像
-docker build --build-arg PORT=7900 --build-arg DB_URL=postgresql://postgres:admin@<your-ip-address>:5432/reflexdb -t MAIRE .
+docker pull xiaohanys91/rnaedit:1.0.4
 
 ### 运行镜像
-docker push -d -p 7900:7900 MAIRE
+docker run -d -p 62001:62001 xiaohanys91/rnaedit:1.0.4
 ```
 
 
