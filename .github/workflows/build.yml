@@ -24,6 +24,6 @@ jobs:
           push: true
           tags: xiaohanys91/rnaedit:1.0.4
           build-args: |
-            PORT=62001
-            API_URL=http://10.83.21.211:62001
+            PORT=8888
+            API_URL=http://10.83.21.211:8888
             DB_URL=${{ secrets.DB_URL }}
