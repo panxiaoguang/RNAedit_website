@@ -293,26 +293,25 @@ class DataLoader:
                 for lineid, line in enumerate(f):
                     if line.startswith("Chromosome"):
                         continue
-                    else:
-                        chrom, pos, tissue_name, level = line.strip("\n").split("\t")
-                        level = float(level)
-                        ## get rnaediting and tissues
-                        rnaediting_db = session.exec(
-                            RNAediting.select().where(
-                                RNAediting.chromosome == chrom,
-                                RNAediting.position == pos,
-                            )
-                        ).first()
-                        tissues_dbs = session.exec(
-                            Tissue.select().where(Tissue.name == tissue_name)
-                        ).first()
-                        if rnaediting_db is not None and tissues_dbs is not None:
-                            final_db = EditingLevel(
-                                rnaediting=rnaediting_db,
-                                tissue=tissues_dbs,
-                                level=level,
-                            )
-                            session.add(final_db)
+                    chrom, pos, tissue_name, level = line.strip("\n").split("\t")
+                    level = float(level)
+                    ## get rnaediting and tissues
+                    rnaediting_db = session.exec(
+                        RNAediting.select().where(
+                            RNAediting.chromosome == chrom,
+                            RNAediting.position == pos,
+                        )
+                    ).first()
+                    tissues_dbs = session.exec(
+                        Tissue.select().where(Tissue.name == tissue_name)
+                    ).first()
+                    if rnaediting_db is not None and tissues_dbs is not None:
+                        final_db = EditingLevel(
+                            rnaediting=rnaediting_db,
+                            tissue=tissues_dbs,
+                            level=level,
+                        )
+                        session.add(final_db)
                     if lineid % 20000 == 0:
                         session.commit()
                         session.refresh(final_db)
@@ -321,16 +320,16 @@ class DataLoader:
 
     def load_data(self):
         print("loading data begin...")
-        print("load gene annotations")
-        self._upload_gene()
-        print("load repeat annotations")
-        self._upload_repeat()
-        print("load tissues")
-        self._upload_tissue()
-        print("load aminoacid changes")
-        self._upload_AA_change()
-        print("load RNA editing")
-        self._upload_edit()
+        #print("load gene annotations")
+        #self._upload_gene()
+        #print("load repeat annotations")
+        #self._upload_repeat()
+        #print("load tissues")
+        #self._upload_tissue()
+        #print("load aminoacid changes")
+        #self._upload_AA_change()
+        #print("load RNA editing")
+        #self._upload_edit()
         print("load editing levels")
         self._upload_levels()
         print("All data loaded!")
@@ -361,12 +360,12 @@ class DataLoader:
 if __name__ == "__main__":
     data_path = "/home/panxiaoguang/Projects/maire_data"
     data_files = [
-        "sample_Gene_data_Macaque.txt",
+        "Gene_data_Macaque.txt",
         "repeats.tsv",
         "tissues.tsv",
         "AA_changes.tsv",
-        "sample_RNA_editing_data.txt",
-        "sample_RE_levels.tsv",
+        "RNA_editing_data.txt",
+        "RE_levels.tsv",
     ]
     data_files = [os.path.join(data_path, file) for file in data_files]
     dataloader = DataLoader(config.db_url, *data_files)
