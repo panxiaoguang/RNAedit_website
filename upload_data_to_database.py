@@ -290,7 +290,7 @@ class DataLoader:
         with rx.session(url=self.url) as session:
             with open(self.editinglevelfile, "r") as f:
                 ## read the header
-                for line in f:
+                for lineid, line in enumerate(f):
                     if line.startswith("Chromosome"):
                         continue
                     else:
@@ -313,6 +313,10 @@ class DataLoader:
                                 level=level,
                             )
                             session.add(final_db)
+                    if lineid % 20000 == 0:
+                        session.commit()
+                        session.refresh(final_db)
+                        print(f"loaded {lineid} lines")
                 session.commit()
 
     def load_data(self):
