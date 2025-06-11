@@ -162,7 +162,7 @@ def index() -> rx.Component:
     return rx.container(
         rx.vstack(
             rx.text(
-                "Welcome To mammalian A-I RNA explorer (MAIRE) V1.0",
+                "Welcome To mammalian A-I RNA editing explorer (MAIRE) V1.0",
                 class_name="text-3xl font-bold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent",
             ),
             rx.text(
