@@ -165,7 +165,7 @@ def view_by_genes() -> rx.Component:
                         rx.input(
                             placeholder="Gene Symbol like GRIA2,TP53,SOD1 ...",
                             value=ViewByGeneState.gene_symbol,
-                            on_blur=ViewByGeneState.set_gene_symbol,
+                            on_change=ViewByGeneState.set_gene_symbol.debounce(500),
                             width="50%",
                         ),
                         spacing="5",
