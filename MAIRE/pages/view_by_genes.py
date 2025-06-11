@@ -47,40 +47,40 @@ class ViewByGeneState(rx.State):
     _level_dot_data: List[dict] = []
     figure: go.Figure = go.Figure()
     _trans_len: int = 0
-    show_figure: bool = False
-
+    show_figure: bool = True
+    spinner: bool = False
+    
     @rx.event
     async def get_gene_view_data(self):
-        self.show_figure = True
+        self.spinner = True
         yield
         with rx.session() as session:
             records = session.exec(Gene.select().where(Gene.symbol == self.gene_symbol).limit(5)).first()
             if records is not None:
                 self._transcript_data, self._level_dot_data = generate_geneview_schema(
-                records
+                    records
                 )
                 self.figure = create_visualization_2(self._transcript_data, self._level_dot_data)
                 self._trans_len = len(self._transcript_data)
                 self.show_figure = False
+                self.spinner = False
                 yield
             else:
                 self._transcript_data = []
                 self._level_dot_data = []
-                self.show_figure = False
+                self.show_figure = True
+                self.spinner = False
                 yield rx.toast("Gene not found!")
-            
+
+
     @rx.event
     def clear_data(self):
         self._transcript_data = []
         self._level_dot_data = []
         self._trans_len = 0
-        self.show_figure = False 
-    @rx.var
-    def show_gene_view(self) -> bool:
-        if self._trans_len == 0:
-            return True
-        else:
-            return False
+        self.show_figure = True
+        self.spinner = False
+
 
     @rx.var
     def get_figure_width(self) -> str:
@@ -90,8 +90,9 @@ class ViewByGeneState(rx.State):
     @rx.event
     def show_example(self):
         self.genome_version = "macFas5"
-        self.gene_symbol = "ACTA1"
+        self.gene_symbol = "GRIA2"
         return ViewByGeneState.get_gene_view_data()
+    
 @rx.page("/view_by_gene",title="View RNA Editing by Genes",)
 @template
 def view_by_genes() -> rx.Component:
@@ -176,7 +177,7 @@ def view_by_genes() -> rx.Component:
                             color_scheme="iris",
                             cursor="pointer",
                             on_click=ViewByGeneState.get_gene_view_data,
-                            loading=ViewByGeneState.show_figure,
+                            loading=ViewByGeneState.spinner,
                         ),
                         rx.button(
                             "Reset",
@@ -200,7 +201,7 @@ def view_by_genes() -> rx.Component:
             class_name="mt-20",
         ),
         rx.cond(
-            ViewByGeneState.show_gene_view,
+            ViewByGeneState.show_figure,
             rx.flex(),
             rx.flex(
                 rx.divider(width="90%"),

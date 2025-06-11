@@ -116,12 +116,12 @@ tracks = [
         "type": "BedTabixAdapter",
         "bedGzLocation": {
           "locationType": "UriLocation",
-          "uri": "https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/pIHGIlaU"
+          "uri": "https://lz.qaiu.top/parser?url=https://caiyun.139.com/w/i/2mKnFvjWcrcld&pwd=p4zq"
         },
         "index": {
           "location": {
             "locationType": "UriLocation",
-            "uri": "https://lz.qaiu.top/parser?url=https://share.feijipan.com/s/iJHGISPV"
+            "uri": "https://lz.qaiu.top/parser?url=https://caiyun.139.com/w/i/2mKnFfiNTX7l1&pwd=ens5"
           }
         }
       },

@@ -284,7 +284,7 @@ class SearchByPositionState(rx.State):
     @rx.event
     def show_example(self):
         self.genome_version = "macFas5"
-        self.region = "chr1:117451-18582865"
+        self.region = "chr5:156540190-156541198"
         return SearchByPositionState.get_data_from_database()
 
 
@@ -572,7 +572,7 @@ def search_by_position():
                         rx.input(
                             placeholder="Coordinates like chr1:117467-117689671",
                             value=SearchByPositionState.region,
-                            on_blur=SearchByPositionState.set_region,
+                            on_change=SearchByPositionState.set_region.debounce(500),
                             width="50%",
                         ),
                         spacing="5",
@@ -585,7 +585,7 @@ def search_by_position():
                             disabled=rx.cond(
                                 SearchByPositionState.region != "", True, False
                             ),
-                            on_blur=SearchByPositionState.set_gene_symbol,
+                            on_change=SearchByPositionState.set_gene_symbol.debounce(500),
                             width="50%",
                         ),
                         spacing="5",
