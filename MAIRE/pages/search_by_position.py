@@ -617,7 +617,6 @@ def search_by_position():
                     spacing="3",
                 ),
                 width="100%",
-                class_name="mt-20",
             ),
             width="100%",
         ),
@@ -703,4 +702,5 @@ def search_by_position():
         ),
         direction="column",
         width="100%",
+        class_name="h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
     )

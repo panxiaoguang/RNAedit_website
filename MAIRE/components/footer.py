@@ -61,7 +61,7 @@ class FooterV2Style:
     base: dict[str, str] = field(
         default_factory=lambda: {
             "width": "100%",
-            "height": "20vh",
+            "height": "10vh",
             "align": "center",
             "justify": "center",
             "padding": "0em 1em",
@@ -103,4 +103,5 @@ def footer_v2() -> rx.Component:
             **FooterV2Style.content,
         ),
         **FooterV2Style.base,
+        class_name="footer"
     )

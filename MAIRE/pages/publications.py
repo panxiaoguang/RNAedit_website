@@ -20,7 +20,7 @@ def pub_view(picture: str, content: Callable[[], rx.Component]) -> rx.Component:
             width="100%",
         ),
         width="60vw",
-        class_name="animate__animated animate__bounceInDown",
+        class_name="hover:-translate-y-0.5 hover:scale-105 transition delay-150 duration-300 ease-in-out",
     )
 
 
@@ -45,10 +45,10 @@ def publications() -> rx.Component:
                 "/NAR_cover.jpeg",
                 rx.flex(
                     rx.text(
-                        "Li, C.,Lv, W., He, Z., et al. Brain-wide A-I RNA Editing Analysis in Macaque and Insights into Nervous System Evolution and Functions. Nucleic Acids Res. (2025)."
+                        "Li, C.,Lv, W., He, Z., Pan, X., et al. Landscape of A-I RNA editing in mouse, pig, macaque, and human brains. Nucleic Acids Res. (2025)."
                     ),
-                    rx.text("In review.", color_scheme="orange"),
-                    rx.link("click to view", href="#"),
+                    rx.text("Accepted.", color_scheme="green"),
+                    rx.link("click to view", href="https://doi.org/10.1093/nar/gkaf534",is_external=True),
                     direction="column",
                     width="75%",
                 ),
@@ -70,7 +70,8 @@ def publications() -> rx.Component:
             ),
             direction="column",
             spacing="2",
+            class_name="pt-[32px]"
         ),
         width="100%",
-        class_name="mt-20",
+        class_name="h-[calc(100vh-10vh-80px)] mt-[69px]",
     )

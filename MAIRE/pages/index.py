@@ -5,7 +5,7 @@ from ..styles import info, tooltip
 #from sqlmodel import select, inspect
 #from sqlalchemy import func
 from typing import List, Dict
-
+from ..components.top_banner import top_banner_basic
 
 def site_numbers_schema(result: tuple) -> List[dict]:
     fin_data = []
@@ -84,34 +84,39 @@ class IndexState(rx.State):
 data = [
     {
         "image": "auditors",
+        "icon": "move-3d",
         "title": "Search by Position",
         "description": "Retrieve the required data from the database based on the site and present it in a table",
     },
     {
         "image": "View by Gene",
+        "icon": "dna",
         "title": "View by Gene",
         "description": "Visualization of gene-corresponding transcripts to anchor editing levels to transcript scale",
     },
     {
         "image": "accountants",
+        "icon": "file-search",
         "title": "Browse by Jbrowse2",
         "description": "Users can jump to any site through navigation and retrieve the edited site and the corresponding annotation information at the same time.",
     },
     {
         "image": "others",
+        "icon": "at-sign",
         "title": "Others",
         "description": "Waiting for adding...",
     },
 ]
 
 
-def create_featured(title: str, description: str) -> rx.Component:
+def create_featured(icon: str, title: str, description: str) -> rx.Component:
     return rx.hstack(
         rx.box(
+            rx.icon(tag=icon,color=rx.color("plum")),
             width="42px",
             height="42px",
-            bg=rx.color("gray", 4),
             border_radius="10px",
+            class_name="justify-items-center content-center"
         ),
         rx.vstack(
             rx.text(title, size="2", weight="bold"),
@@ -126,17 +131,21 @@ def create_featured(title: str, description: str) -> rx.Component:
 
 def create_featured_section(features: List[Dict[str, str]]) -> rx.Component:
     return rx.vstack(
-        rx.heading(
+        rx.flex(
+             rx.icon(tag="database-zap",color=rx.color("plum")),
+             rx.heading(
             "The database is not only a database",
             size="4",
             color=rx.color("slate", 12),
         ),
+        spacing="1",
+        ), 
         rx.text(
             "In addition to simple searches, this website also provides interactive visualizations from multiple perspectives to fully help users study the prevalence and specificity of RNA editing sites.",
             color=rx.color("slate", 11),
         ),
         rx.hstack(
-            *[create_featured(item["title"], item["description"]) for item in features],
+            *[create_featured(item["icon"], item["title"], item["description"]) for item in features],
             width="100%",
             display="grid",
             grid_template_columns=[
@@ -160,6 +169,7 @@ def create_featured_section(features: List[Dict[str, str]]) -> rx.Component:
 @template
 def index() -> rx.Component:
     return rx.container(
+        top_banner_basic(),
         rx.vstack(
             rx.text(
                 "Welcome To mammalian A-I RNA editing explorer (MAIRE) V1.0",
@@ -235,7 +245,8 @@ def index() -> rx.Component:
             ),
             rx.divider(),
             create_featured_section(data),
+            class_name="pt-[32px]"
         ),
         width="100%",
-        class_name="mt-20",
+        class_name="mt-[69px]",
     )

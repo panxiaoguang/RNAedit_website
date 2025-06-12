@@ -198,7 +198,6 @@ def view_by_genes() -> rx.Component:
                 ),
             ),
             width="100%",
-            class_name="mt-20",
         ),
         rx.cond(
             ViewByGeneState.show_figure,
@@ -218,4 +217,5 @@ def view_by_genes() -> rx.Component:
         ),
         direction="column",
         width="100%",
+        class_name="h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
     )

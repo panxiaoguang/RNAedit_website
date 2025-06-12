@@ -63,6 +63,6 @@ def navbar() -> rx.Component:
             ),
             class_name="px-9  justify-between content-start items-center",
         ),
-        class_name="shadow-md fixed top-0 bg-white z-50",
+        class_name="fixed top-0 bg-white z-50 border-b border-gray-200 h-[69px] navbar",
         width="100%",
     )
