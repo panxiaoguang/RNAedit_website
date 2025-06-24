@@ -52,7 +52,7 @@ class ViewByGeneState(rx.State):
     running: bool = False
 
     @rx.event(background=True)
-    async def test_get_data(self):
+    async def async_get_data(self):
         async with self:
             self.spinner = True
         async with rx.asession() as asession:
@@ -95,7 +95,7 @@ class ViewByGeneState(rx.State):
     def start_task(self):
         self.running = True
         if self.running:
-            return ViewByGeneState.test_get_data
+            return ViewByGeneState.async_get_data
         
     @rx.event
     def clear_data(self):
@@ -118,7 +118,7 @@ class ViewByGeneState(rx.State):
     def show_example(self):
         self.genome_version = "macFas5"
         self.gene_symbol = "GRIA2"
-        return ViewByGeneState.get_gene_view_data()
+        return ViewByGeneState.start_task
     
 @rx.page("/view_by_gene",title="View RNA Editing by Genes",)
 @template
