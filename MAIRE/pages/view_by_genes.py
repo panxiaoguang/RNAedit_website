@@ -1,13 +1,13 @@
 import reflex as rx
 from ..template import template
 from typing import List
-from ..models import Gene
+from ..models import Gene, Transcript, RNAediting, EditingLevel
 from ..utils import create_visualization_2
 import plotly.graph_objects as go
-
+import sqlalchemy
 
 def generate_geneview_schema(records: Gene):
-    transcript_data = records.transcripts
+    transcript_data = records.transcripts[:5]
     rna_editing_data = records.rnaediting  ## List
     transcript_list = []
     level_dot_data = []
@@ -49,37 +49,64 @@ class ViewByGeneState(rx.State):
     _trans_len: int = 0
     show_figure: bool = True
     spinner: bool = False
-    
+    running: bool = False
+
+    @rx.event(background=True)
+    async def test_get_data(self):
+        async with self:
+            self.spinner = True
+        async with rx.asession() as asession:
+            async with self:
+                if not self.running:
+                    self._transcript_data = []
+                    self._level_dot_data = []
+                    self.show_figure = True
+                    self.spinner = False
+                    return
+                
+                mydata = await asession.execute(Gene.select().where(Gene.symbol == self.gene_symbol).options(
+                    sqlalchemy.orm.selectinload(Gene.transcripts).options(
+                        sqlalchemy.orm.selectinload(Transcript.cdses),
+                        sqlalchemy.orm.selectinload(Transcript.utres)
+                    ),
+                    sqlalchemy.orm.selectinload(Gene.rnaediting).options(
+                        sqlalchemy.orm.selectinload(RNAediting.editinglevel).options(
+                            sqlalchemy.orm.selectinload(EditingLevel.tissue)
+                        )
+                    ),
+                ))
+                records = mydata.scalar_one_or_none()
+                if records is not None:
+                    self._transcript_data, self._level_dot_data = generate_geneview_schema(
+                        records
+                    )
+                    self.figure = create_visualization_2(self._transcript_data, self._level_dot_data)
+                    self._trans_len = len(self._transcript_data)
+                    self.show_figure = False
+                    self.spinner = False
+                else:
+                    self._transcript_data = []
+                    self._level_dot_data = []
+                    self.show_figure = True
+                    self.spinner = False
+
+
     @rx.event
-    async def get_gene_view_data(self):
-        self.spinner = True
-        yield
-        with rx.session() as session:
-            records = session.exec(Gene.select().where(Gene.symbol == self.gene_symbol).limit(5)).first()
-            if records is not None:
-                self._transcript_data, self._level_dot_data = generate_geneview_schema(
-                    records
-                )
-                self.figure = create_visualization_2(self._transcript_data, self._level_dot_data)
-                self._trans_len = len(self._transcript_data)
-                self.show_figure = False
-                self.spinner = False
-                yield
-            else:
-                self._transcript_data = []
-                self._level_dot_data = []
-                self.show_figure = True
-                self.spinner = False
-                yield rx.toast("Gene not found!")
-
-
+    def start_task(self):
+        self.running = True
+        if self.running:
+            return ViewByGeneState.test_get_data
+        
     @rx.event
     def clear_data(self):
+        self.running = False
+        self.gene_symbol = ""
         self._transcript_data = []
         self._level_dot_data = []
         self._trans_len = 0
         self.show_figure = True
         self.spinner = False
+
 
 
     @rx.var
@@ -176,7 +203,7 @@ def view_by_genes() -> rx.Component:
                             "Search",
                             color_scheme="iris",
                             cursor="pointer",
-                            on_click=ViewByGeneState.get_gene_view_data,
+                            on_click=ViewByGeneState.start_task,
                             loading=ViewByGeneState.spinner,
                         ),
                         rx.button(
@@ -217,5 +244,5 @@ def view_by_genes() -> rx.Component:
         ),
         direction="column",
         width="100%",
-        class_name="h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
+        class_name="min-h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
     )

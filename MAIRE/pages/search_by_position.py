@@ -3,6 +3,7 @@ from ..template import template
 from ..models import RNAediting, Aminochange, Gene, EditingLevel
 from typing import List, Dict
 from ..styles import info, tooltip
+import sqlalchemy
 
 
 ##################################################################################################
@@ -14,7 +15,7 @@ def data_schema(record: RNAediting) -> dict:
         "Position": record.position,
         "Ref": record.ref,
         "Ed": record.alt,
-        #"Strand": record.gene.strand, ## conghui said we shouldn't show strand
+        # "Strand": record.gene.strand, ## conghui said we shouldn't show strand
         "Location": record.location,
         "Repeats": "-/-" if record.repeat is None else record.repeat.repeatclass,
         "Gene": "-/-" if record.gene.symbol == " " else record.gene.symbol,
@@ -123,7 +124,7 @@ table_colums = [
     {"title": "Position", "tip": "Editing Position"},
     {"title": "Ref", "tip": "Nucleotide on reference"},
     {"title": "Ed", "tip": "Alt nucleotide"},
-    #{"title": "Strand", "tip": "Gene Strand not editing strand"},
+    # {"title": "Strand", "tip": "Gene Strand not editing strand"},
     {"title": "Location", "tip": "Whether the editing is in the repeat region or not"},
     {"title": "Repeats", "tip": "Repeat Class"},
     {"title": "Gene", "tip": "Gene Symbol"},
@@ -153,6 +154,8 @@ class SearchByPositionState(rx.State):
     editing_level: List[Dict[str, int]] = []
     table_find: bool = False
     _all_tissues: List[str] = total_tissues
+    current_rnaedit_id: int = 0
+    current_plotting_id: int = 0
 
     @rx.var
     def show_table(self) -> bool:
@@ -207,79 +210,117 @@ class SearchByPositionState(rx.State):
         self.column_names = []
         self.editing_level = []
 
-    @rx.event
+    @rx.event(background=True)
     async def get_data_from_database(self):
-        self.table_find = True
-        yield
-        with rx.session() as session:
-            if self.region != "":
-                ## use region to get records
-                chrom, pos = self.region.split(":")
-                start, end = pos.split("-")
-                start = int(start)
-                end = int(end)
-                records = session.exec(
-                    RNAediting.select().where(
-                        RNAediting.chromosome == chrom,
-                        RNAediting.position >= start,
-                        RNAediting.position <= end,
+        async with self:
+            self.table_find = True
+        async with rx.asession() as asession:
+            async with self:
+                if self.region != "":
+                    ## use region to get records
+                    chrom, pos = self.region.split(":")
+                    start, end = pos.split("-")
+                    start = int(start)
+                    end = int(end)
+                    results = await asession.execute(
+                        RNAediting.select()
+                        .where(
+                            RNAediting.chromosome == chrom,
+                            RNAediting.position >= start,
+                            RNAediting.position <= end,
+                        )
+                        .options(
+                            sqlalchemy.orm.selectinload(RNAediting.gene),
+                            sqlalchemy.orm.selectinload(RNAediting.repeat),
+                        )
                     )
-                ).all()
-                if records is not None:
-                    self.main_data = [data_schema(record) for record in records]
-                    self.paginated_data = self.main_data[:10]
-                    self.column_names = table_colums
-                    self.number_of_rows = len(self.main_data)
-                    self.total_pages = (
-                        self.number_of_rows + self.current_limit - 1
-                    ) // self.current_limit
-                    self.table_find = False
-                    yield
+                    records = results.scalars().all()
+                    if records is not None:
+                        self.main_data = [data_schema(record) for record in records]
+                        self.paginated_data = self.main_data[:10]
+                        self.column_names = table_colums
+                        self.number_of_rows = len(self.main_data)
+                        self.total_pages = (
+                            self.number_of_rows + self.current_limit - 1
+                        ) // self.current_limit
+                        self.table_find = False
+                    else:
+                        self.table_find = False
                 else:
-                    self.table_find = False
-                    yield rx.toast("No region found!")
-            else:
-                ## use gene symbol to get records
-                records = session.exec(
-                    Gene.select().where(Gene.symbol == self.gene_symbol)
-                ).first()
-                if records is not None:
-                    self.main_data = [
-                        data_schema(record) for record in records.rnaediting
-                    ]
-                    self.paginated_data = self.main_data[:10]
-                    self.column_names = table_colums
-                    self.number_of_rows = len(self.main_data)
-                    self.total_pages = (
-                        self.number_of_rows + self.current_limit - 1
-                    ) // self.current_limit
-                    self.table_find = False
-                    yield
-                else:
-                    self.table_find = False
-                    yield rx.toast("No gene found!")
+                    ## use gene symbol to get records
+                    results = await asession.execute(
+                        Gene.select()
+                        .where(Gene.symbol == self.gene_symbol)
+                        .options(sqlalchemy.orm.selectinload(Gene.rnaediting))
+                    )
+                    records = results.scalar_one_or_none()
+                    if records is not None:
+                        self.main_data = [
+                            data_schema(record) for record in records.rnaediting
+                        ]
+                        self.paginated_data = self.main_data[:10]
+                        self.column_names = table_colums
+                        self.number_of_rows = len(self.main_data)
+                        self.total_pages = (
+                            self.number_of_rows + self.current_limit - 1
+                        ) // self.current_limit
+                        self.table_find = False
+                    else:
+                        self.table_find = False
 
     @rx.event
-    async def get_exfun_data(self, value: bool, rnaedit_id: int):
-        with rx.session() as session:
-            records = session.exec(
-                RNAediting.select().where(RNAediting.id == rnaedit_id)
-            ).one()
-            if records is not None:
-                self.exfun_data = [
-                    amino_change_schema(record) for record in records.aminochanges
-                ]
+    def get_exfun_data(self, value: bool, rnaedit_id: int):
+        self.current_rnaedit_id = rnaedit_id
+        return SearchByPositionState.bg_exfun_data()
+
+    @rx.event(background=True)
+    async def bg_exfun_data(self):
+        async with self:
+            self.exfun_data = []
+        async with rx.asession() as asession:
+            async with self:
+                results = await asession.execute(
+                    RNAediting.select()
+                    .where(RNAediting.id == self.current_rnaedit_id)
+                    .options(
+                        sqlalchemy.orm.selectinload(RNAediting.aminochanges).options(
+                            sqlalchemy.orm.selectinload(Aminochange.transcript)
+                        )
+                    )
+                )
+                records = results.scalar_one_or_none()
+                if records is not None:
+                    self.exfun_data = [
+                        amino_change_schema(record) for record in records.aminochanges
+                    ]
+                else:
+                    self.exfun_data = []
 
     @rx.event
     async def render_editing_level_plot(self, rnaedit_id: int):
-        with rx.session() as session:
-            records = session.exec(
-                RNAediting.select().where(RNAediting.id == rnaedit_id)
-            ).one()
-            if records is not None:
-                self.editing_level = editing_level_schema(
-                    records.editinglevel, self._all_tissues
+        self.current_plotting_id = rnaedit_id
+        return SearchByPositionState.bg_editing_level_plot()
+
+    @rx.event(background=True)
+    async def bg_editing_level_plot(self):
+        async with rx.asession() as asession:
+            async with self:
+                results = await asession.execute(
+                    RNAediting.select()
+                    .where(RNAediting.id == self.current_plotting_id)
+                    .options(
+                        sqlalchemy.orm.selectinload(RNAediting.editinglevel).options(
+                            sqlalchemy.orm.selectinload(EditingLevel.tissue)
+                        )
+                    )
                 )
+                records = results.scalar_one_or_none()
+                if records is not None:
+                    self.editing_level = editing_level_schema(
+                        records.editinglevel, self._all_tissues
+                    )
+                else:
+                    self.editing_level = []
 
     @rx.event
     def show_example(self):
@@ -377,11 +418,11 @@ def render_row(data: Dict[str, str]):
             cursor="pointer",
             justify="center",
         ),
-        #rx.table.cell(
+        # rx.table.cell(
         #    rx.text(data["Strand"]),
         #    cursor="pointer",
         #    justify="center",
-        #),
+        # ),
         rx.table.cell(
             rx.text(data["Location"]),
             cursor="pointer",
@@ -500,7 +541,7 @@ def create_pagination():
 
 
 #### main UI for this page:
-@rx.page("/search_by_position",title="Search By Position")
+@rx.page("/search_by_position", title="Search By Position")
 @template
 def search_by_position():
     return rx.flex(
@@ -570,7 +611,7 @@ def search_by_position():
                     rx.flex(
                         rx.text("Genomic Region:"),
                         rx.input(
-                            placeholder="Coordinates like chr1:117467-117689671",
+                            placeholder="Coordinates like chr5:156540190-156541198",
                             value=SearchByPositionState.region,
                             on_change=SearchByPositionState.set_region.debounce(500),
                             width="50%",
@@ -585,7 +626,9 @@ def search_by_position():
                             disabled=rx.cond(
                                 SearchByPositionState.region != "", True, False
                             ),
-                            on_change=SearchByPositionState.set_gene_symbol.debounce(500),
+                            on_change=SearchByPositionState.set_gene_symbol.debounce(
+                                500
+                            ),
                             width="50%",
                         ),
                         spacing="5",
@@ -702,5 +745,5 @@ def search_by_position():
         ),
         direction="column",
         width="100%",
-        class_name="h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
+        class_name="min-h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]",
     )

@@ -51,13 +51,7 @@ class TopBannerBasic(rx.ComponentState):
                 padding="1rem",
                 background=rx.color("accent", 4),
                 **props,
-            ),
-            # Remove this in production
-            rx.icon_button(
-                rx.icon("eye"),
-                cursor="pointer",
-                on_click=cls.toggle,
-            ),
+            )
         )
 
 

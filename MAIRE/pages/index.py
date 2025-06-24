@@ -239,6 +239,7 @@ def index() -> rx.Component:
                         width="100%",
                         height=380,
                     ),
+                    class_name="pt-5"
                 ),
                 class_name="w-[100%] [&_.recharts-tooltip-item-separator]:w-full mt-10",
                 direction="column",

@@ -1,12 +1,13 @@
-alembic==1.16.1
+alembic==1.16.2
 annotated-types==0.7.0
 anyio==4.9.0
+asyncpg==0.30.0
 bidict==0.23.1
-certifi==2025.4.26
+certifi==2025.6.15
 charset-normalizer==3.4.1
 click==8.2.1
-fastapi==0.115.12
-granian==2.3.3
+fastapi==0.115.13
+granian==2.3.4
 greenlet==3.2.1
 gunicorn==23.0.0
 h11==0.16.0
@@ -27,15 +28,15 @@ psycopg==3.2.6
 psycopg-binary==3.2.6
 psycopg-pool==3.2.6
 psycopg2-binary==2.9.10
-pydantic==2.11.5
+pydantic==2.11.7
 pydantic_core==2.33.2
-Pygments==2.19.1
+Pygments==2.19.2
 python-engineio==4.12.2
 python-multipart==0.0.20
 python-socketio==5.13.0
 PyYAML==6.0.2
 redis==6.2.0
-reflex @ git+https://github.com/panxiaoguang/reflex.git@bb5788732f11c53b628213af93a374c22b0381dd
+reflex==0.7.14
 reflex-hosting-cli==0.1.50
 rich==14.0.0
 shellingham==1.5.4
@@ -50,6 +51,6 @@ typer==0.15.2
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 uvicorn==0.34.2
-watchfiles==1.0.5
+watchfiles==1.1.0
 wrapt==1.17.2
 wsproto==1.2.0

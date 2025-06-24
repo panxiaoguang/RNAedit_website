@@ -2,7 +2,7 @@
 # to services like Render, Railway, Heroku, GCP, and others.
 
 # If the service expects a different port, provide it here (f.e Render expects port 10000)
-ARG PORT API_URL DB_URL
+ARG PORT API_URL DB_URL ASYNC_DB_URL
 # Only set for local/direct access. When TLS is used, the API_URL is assumed to be the same as the frontend.
 # It uses a reverse proxy to serve the frontend statically and proxy to backend
 # from a single exposed port, expecting TLS termination to be handled at the
@@ -31,9 +31,9 @@ RUN if [ -f .web/bun.lockb ]; then cd .web && ~/.local/share/reflex/bun/bin/bun 
 # Copy local context to `/app` inside container (see .dockerignore)
 COPY . .
 
-ARG PORT API_URL DB_URL
+ARG PORT API_URL DB_URL ASYNC_DB_URL
 # Download other npm dependencies and compile frontend
-RUN API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
+RUN REFLEX_API_URL=${API_URL:-http://localhost:$PORT} REFLEX_DB_URL=${DB_URL:-sqlite:///reflex.db} REFLEX_ASYNC_DB_URL=${ASYNC_DB_URL:-sqlite+aiosqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
 
 
 # Final image with only necessary files
@@ -42,8 +42,8 @@ FROM python:3.13-slim
 # Install Caddy and redis server inside image
 RUN apt-get update -y && apt-get install -y caddy redis-server && rm -rf /var/lib/apt/lists/*
 
-ARG PORT API_URL DB_URL
-ENV PATH="/app/.venv/bin:$PATH" PORT=$PORT API_URL=${API_URL:-http://localhost:$PORT} DB_URL=${DB_URL:-sqlite:///reflex.db} REDIS_URL=redis://localhost PYTHONUNBUFFERED=1
+ARG PORT API_URL DB_URL ASYNC_DB_URL
+ENV PATH="/app/.venv/bin:$PATH" PORT=$PORT REFLEX_API_URL=${API_URL:-http://localhost:$PORT} REFLEX_DB_URL=${DB_URL:-sqlite:///reflex.db} REFLEX_ASYNC_DB_URL=${ASYNC_DB_URL:-sqlite+aiosqlite:///reflex.db} REFLEX_REDIS_URL=redis://localhost PYTHONUNBUFFERED=1
 
 WORKDIR /app
 COPY --from=builder /app /app
