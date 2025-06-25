@@ -43,7 +43,6 @@ def faq_v1():
                 align="left",
                 color_scheme="orange",
             ),
-            
             rx.image(
                 src="https://tncache1-f1.v3mh.com/image/2025/04/22/09d5bceb9895f3ea485f1267cd91176b.png"
             ),
@@ -66,7 +65,6 @@ def faq_v1():
                 "Users can also click the Editing level button to view editing levels of each editing site in different tissues."
             ),
             rx.heading("Gene Landscape", size="5", align="left", color_scheme="orange"),
-            
             rx.image(
                 src="https://tncache1-f1.v3mh.com/image/2025/04/22/53742b2ec4e8d60374c93acba15a1f80.png"
             ),
@@ -74,7 +72,6 @@ def faq_v1():
                 "As shown above, after selecting species and genome version, enter a gene name to simultaneously view transcripts and editing levels of all editing sites in that gene, which provides a more intuitive overview."
             ),
             rx.heading("Browser", size="5", align="left", color_scheme="orange"),
-            
             rx.image(
                 src="https://tncache1-f1.v3mh.com/image/2025/04/22/de6ad349b091343291011df92a119d0a.png"
             ),
@@ -82,7 +79,6 @@ def faq_v1():
                 "Users can directly click the Jbrowse button in the navigation bar to enter the global browsing page. On this page, users will see all editing sites, as well as corresponding repetitive elements and transcripts, in Jbrowse2. Users can zoom in or out, and also jump to specific locations by entering genome coordinate positions at the top."
             ),
             rx.heading("Contact Us", size="5", align="left", color_scheme="orange"),
-            
             rx.text(
                 "We greatly appreciate your feedback. If bug reports or suggestions, Please contact Xiaoguang Pan (",
                 rx.link(
@@ -90,7 +86,13 @@ def faq_v1():
                 ),
                 ") or Yonglun Luo (",
                 rx.link("alun@biomed.au.dk", href="mailto:alun@biomed.au.dk"),
-                "). This application is developed using the Reflex framwork with Python 3.13.",
+                "). This application is developed using the Reflex framwork with Python 3.13. You can also find the source code on ",
+                rx.link(
+                    "GitHub",
+                    href="https://github.com/panxiaoguang/RNAedit_website",
+                    is_external=True,
+                ),
+                ".",
             ),
             direction="column",
             spacing="2",
