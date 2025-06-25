@@ -1,5 +1,6 @@
 import reflex as rx
 
+
 class TopBannerBasic(rx.ComponentState):
     hide: bool = False
 
@@ -19,10 +20,11 @@ class TopBannerBasic(rx.ComponentState):
                         radius="full",
                     ),
                     rx.text(
-                        "Our Publication has been accepted - 2025-06-12 ",
+                        "Our Publication has been published - 2025-06-18 ",
                         rx.link(
-                            "DOI!",
-                            href="https://www.nature.com/articles/s42003-021-02238-3",
+                            "Goto->",
+                            href="https://academic.oup.com/nar/article/53/11/gkaf534/8166790",
+                            is_external=True,
                             underline="always",
                             display="inline",
                             underline_offset="2px",
@@ -51,7 +53,7 @@ class TopBannerBasic(rx.ComponentState):
                 padding="1rem",
                 background=rx.color("accent", 4),
                 **props,
-            )
+            ),
         )
 
 
