@@ -156,6 +156,7 @@ class SearchByPositionState(rx.State):
     _all_tissues: List[str] = total_tissues
     current_rnaedit_id: int = 0
     current_plotting_id: int = 0
+    main_search_running: bool = False
 
     @rx.var
     def show_table(self) -> bool:
@@ -205,16 +206,31 @@ class SearchByPositionState(rx.State):
 
     @rx.event
     def clear_data(self):
+        self.main_search_running = False
+        self.table_find = False
         self.main_data = []
         self.paginated_data = []
         self.column_names = []
         self.editing_level = []
+
+    @rx.event
+    def start_search(self):
+        self.main_search_running = True
+        return SearchByPositionState.get_data_from_database()
 
     @rx.event(background=True)
     async def get_data_from_database(self):
         async with self:
             self.table_find = True
         async with rx.asession() as asession:
+            async with self:
+                if not self.main_search_running:
+                    self.table_find = False
+                    self.main_data = []
+                    self.paginated_data = []
+                    self.column_names = []
+                    self.editing_level = []
+                    return
             async with self:
                 if self.region != "":
                     ## use region to get records
@@ -251,7 +267,12 @@ class SearchByPositionState(rx.State):
                     results = await asession.execute(
                         Gene.select()
                         .where(Gene.symbol == self.gene_symbol)
-                        .options(sqlalchemy.orm.selectinload(Gene.rnaediting))
+                        .options(
+                            sqlalchemy.orm.selectinload(Gene.rnaediting).options(
+                                sqlalchemy.orm.selectinload(RNAediting.gene),
+                                sqlalchemy.orm.selectinload(RNAediting.repeat),
+                            )
+                        )
                     )
                     records = results.scalar_one_or_none()
                     if records is not None:
@@ -326,7 +347,7 @@ class SearchByPositionState(rx.State):
     def show_example(self):
         self.genome_version = "macFas5"
         self.region = "chr5:156540190-156541198"
-        return SearchByPositionState.get_data_from_database()
+        return SearchByPositionState.start_search
 
 
 #### util functions for Table UI
@@ -639,7 +660,7 @@ def search_by_position():
                             "Search",
                             color_scheme="iris",
                             cursor="pointer",
-                            on_click=SearchByPositionState.get_data_from_database,
+                            on_click=SearchByPositionState.start_search,
                             loading=SearchByPositionState.table_find,
                         ),
                         rx.button(
