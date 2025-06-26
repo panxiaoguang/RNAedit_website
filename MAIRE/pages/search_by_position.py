@@ -262,6 +262,11 @@ class SearchByPositionState(rx.State):
                         self.table_find = False
                     else:
                         self.table_find = False
+                        self.main_data = []
+                        self.paginated_data = []
+                        self.column_names = []
+                        self.editing_level = []
+                        yield rx.toast("No data found!")
                 else:
                     ## use gene symbol to get records
                     results = await asession.execute(
@@ -288,6 +293,11 @@ class SearchByPositionState(rx.State):
                         self.table_find = False
                     else:
                         self.table_find = False
+                        self.main_data = []
+                        self.paginated_data = []
+                        self.column_names = []
+                        self.editing_level = []
+                        yield rx.toast("No data found!")
 
     @rx.event
     def get_exfun_data(self, value: bool, rnaedit_id: int):

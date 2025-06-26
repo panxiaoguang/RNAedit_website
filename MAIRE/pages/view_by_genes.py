@@ -6,6 +6,7 @@ from ..utils import create_visualization_2
 import plotly.graph_objects as go
 import sqlalchemy
 
+
 def generate_geneview_schema(records: Gene):
     transcript_data = records.transcripts[:5]
     rna_editing_data = records.rnaediting  ## List
@@ -31,10 +32,10 @@ def generate_geneview_schema(records: Gene):
         x_coord = rna_editing.position
         for level in rna_editing.editinglevel:
             level_dict = {
-                    "x": x_coord,
-                    "tissue_name": level.tissue.name,
-                    "y": round(level.level, 3),
-                }
+                "x": x_coord,
+                "tissue_name": level.tissue.name,
+                "y": round(level.level, 3),
+            }
             level_dot_data.append(level_dict)
     return transcript_list, level_dot_data
 
@@ -63,24 +64,30 @@ class ViewByGeneState(rx.State):
                     self.show_figure = True
                     self.spinner = False
                     return
-                
-                mydata = await asession.execute(Gene.select().where(Gene.symbol == self.gene_symbol).options(
-                    sqlalchemy.orm.selectinload(Gene.transcripts).options(
-                        sqlalchemy.orm.selectinload(Transcript.cdses),
-                        sqlalchemy.orm.selectinload(Transcript.utres)
-                    ),
-                    sqlalchemy.orm.selectinload(Gene.rnaediting).options(
-                        sqlalchemy.orm.selectinload(RNAediting.editinglevel).options(
-                            sqlalchemy.orm.selectinload(EditingLevel.tissue)
-                        )
-                    ),
-                ))
+
+                mydata = await asession.execute(
+                    Gene.select()
+                    .where(Gene.symbol == self.gene_symbol)
+                    .options(
+                        sqlalchemy.orm.selectinload(Gene.transcripts).options(
+                            sqlalchemy.orm.selectinload(Transcript.cdses),
+                            sqlalchemy.orm.selectinload(Transcript.utres),
+                        ),
+                        sqlalchemy.orm.selectinload(Gene.rnaediting).options(
+                            sqlalchemy.orm.selectinload(
+                                RNAediting.editinglevel
+                            ).options(sqlalchemy.orm.selectinload(EditingLevel.tissue))
+                        ),
+                    )
+                )
                 records = mydata.scalar_one_or_none()
                 if records is not None:
-                    self._transcript_data, self._level_dot_data = generate_geneview_schema(
-                        records
+                    self._transcript_data, self._level_dot_data = (
+                        generate_geneview_schema(records)
                     )
-                    self.figure = create_visualization_2(self._transcript_data, self._level_dot_data)
+                    self.figure = create_visualization_2(
+                        self._transcript_data, self._level_dot_data
+                    )
                     self._trans_len = len(self._transcript_data)
                     self.show_figure = False
                     self.spinner = False
@@ -89,14 +96,14 @@ class ViewByGeneState(rx.State):
                     self._level_dot_data = []
                     self.show_figure = True
                     self.spinner = False
-
+                    yield rx.toast("No data found!")
 
     @rx.event
     def start_task(self):
         self.running = True
         if self.running:
             return ViewByGeneState.async_get_data
-        
+
     @rx.event
     def clear_data(self):
         self.running = False
@@ -106,8 +113,6 @@ class ViewByGeneState(rx.State):
         self._trans_len = 0
         self.show_figure = True
         self.spinner = False
-
-
 
     @rx.var
     def get_figure_width(self) -> str:
@@ -119,8 +124,12 @@ class ViewByGeneState(rx.State):
         self.genome_version = "macFas5"
         self.gene_symbol = "GRIA2"
         return ViewByGeneState.start_task
-    
-@rx.page("/view_by_gene",title="View RNA Editing by Genes",)
+
+
+@rx.page(
+    "/view_by_gene",
+    title="View RNA Editing by Genes",
+)
 @template
 def view_by_genes() -> rx.Component:
     return rx.flex(
@@ -216,8 +225,8 @@ def view_by_genes() -> rx.Component:
                             "Example",
                             color_scheme="violet",
                             cursor="pointer",
-                            on_click=ViewByGeneState.show_example
-                        )
+                            on_click=ViewByGeneState.show_example,
+                        ),
                     ),
                     direction="column",
                     width="100%",
@@ -235,6 +244,7 @@ def view_by_genes() -> rx.Component:
                     data=ViewByGeneState.figure,
                     width="100%",
                     height=ViewByGeneState.get_figure_width,
+                    config={"displayModeBar": False, "watermark": False},
                 ),
                 align="center",
                 justify="center",
@@ -244,5 +254,5 @@ def view_by_genes() -> rx.Component:
         ),
         direction="column",
         width="100%",
-        class_name="min-h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]"
+        class_name="min-h-[calc(100vh-10vh-80px)] mt-[69px] pt-[32px]",
     )
