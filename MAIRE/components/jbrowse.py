@@ -13,6 +13,7 @@ class JbrowseComponent(rx.NoSSRComponent):
         "@jbrowse/react-linear-genome-view2",
         "jbrowse-plugin-ucsc",
         "json-stable-stringify",
+        "buffer",
     ]
     # lib_dependencies: list[str] = ["@fontsource/roboto","@mui/x-data-grid","@jbrowse/react-linear-genome-view2","jbrowse-plugin-ucsc","json-stable-stringify"]
     # transpile_packages: list[str] = ["@mui/x-data-grid"]
