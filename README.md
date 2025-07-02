@@ -8,10 +8,10 @@ Conghui Li, Wei Lv, Zhiwei He, Xiaoguang Pan, Yuchen Zeng, Jan Mulder, Evelina S
 
 ```bash
 ### Pull the image
-docker pull xiaohanys91/rnaedit:1.2.2
+docker pull xiaohanys91/rnaedit:1.2.5
 
 ### Run the image
-docker run -d -p 8888:8888 xiaohanys91/rnaedit:1.2.2
+docker run -d -p 8888:8888 xiaohanys91/rnaedit:1.2.5
 ```
 
 ### note:
