@@ -33,7 +33,7 @@ COPY . .
 
 ARG PORT API_URL DB_URL ASYNC_DB_URL
 # Download other npm dependencies and compile frontend
-RUN REFLEX_API_URL=${API_URL:-http://localhost:$PORT} REFLEX_DB_URL=${DB_URL:-sqlite:///reflex.db} REFLEX_ASYNC_DB_URL=${ASYNC_DB_URL:-sqlite+aiosqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/_static/* /srv/ && rm -rf .web
+RUN REFLEX_API_URL=${API_URL:-http://localhost:$PORT} REFLEX_DB_URL=${DB_URL:-sqlite:///reflex.db} REFLEX_ASYNC_DB_URL=${ASYNC_DB_URL:-sqlite+aiosqlite:///reflex.db} reflex export --loglevel debug --frontend-only --no-zip && mv .web/build/client/* /srv/ && rm -rf .web
 
 
 # Final image with only necessary files
