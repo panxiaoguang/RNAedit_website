@@ -7,7 +7,7 @@ certifi==2025.6.15
 charset-normalizer==3.4.1
 click==8.2.1
 fastapi==0.115.13
-granian==2.3.4
+granian==2.4.1
 greenlet==3.2.1
 gunicorn==23.0.0
 h11==0.16.0
@@ -36,7 +36,7 @@ python-multipart==0.0.20
 python-socketio==5.13.0
 PyYAML==6.0.2
 redis==6.2.0
-reflex==0.7.14
+reflex==0.8.0
 reflex-hosting-cli==0.1.50
 rich==14.0.0
 shellingham==1.5.4

@@ -1,17 +1,20 @@
 import reflex as rx
 from ..template import template
 from ..styles import info, tooltip
-#from ..models import Tissue, RNAeditingtissuelink
-#from sqlmodel import select, inspect
-#from sqlalchemy import func
+
+# from ..models import Tissue, RNAeditingtissuelink
+# from sqlmodel import select, inspect
+# from sqlalchemy import func
 from typing import List, Dict
 from ..components.top_banner import top_banner_basic
+
 
 def site_numbers_schema(result: tuple) -> List[dict]:
     fin_data = []
     for tissue, count in result:
         fin_data.append({"tissue": tissue, "count": count})
     return fin_data
+
 
 list_site_numbers = [
     {"tissue": "caudate nucleus", "count": 721799},
@@ -59,15 +62,14 @@ list_site_numbers = [
     {"tissue": "spinal cord ventral", "count": 339521},
     {"tissue": "anterior hippocampus", "count": 348499},
     {"tissue": "medulla", "count": 391710},
-    {"tissue": "midbrain", "count": 349261}
+    {"tissue": "midbrain", "count": 349261},
 ]
-
 
 
 class IndexState(rx.State):
     numbers: List[dict] = list_site_numbers
-    #@rx.var
-    #async def get_numbers_in_tissues(self) -> List[Dict[str, int]]:
+    # @rx.var
+    # async def get_numbers_in_tissues(self) -> List[Dict[str, int]]:
     #    inspector = inspect(rx.model.get_engine())
     #    if not inspector.has_table("tissue"):
     #        return []
@@ -112,11 +114,11 @@ data = [
 def create_featured(icon: str, title: str, description: str) -> rx.Component:
     return rx.hstack(
         rx.box(
-            rx.icon(tag=icon,color=rx.color("plum")),
+            rx.icon(tag=icon, color=rx.color("plum")),
             width="42px",
             height="42px",
             border_radius="10px",
-            class_name="justify-items-center content-center"
+            class_name="justify-items-center content-center",
         ),
         rx.vstack(
             rx.text(title, size="2", weight="bold"),
@@ -132,20 +134,23 @@ def create_featured(icon: str, title: str, description: str) -> rx.Component:
 def create_featured_section(features: List[Dict[str, str]]) -> rx.Component:
     return rx.vstack(
         rx.flex(
-             rx.icon(tag="database-zap",color=rx.color("plum")),
-             rx.heading(
-            "The database is not only a database",
-            size="4",
-            color=rx.color("slate", 12),
+            rx.icon(tag="database-zap", color=rx.color("plum")),
+            rx.heading(
+                "The database is not only a database",
+                size="4",
+                color=rx.color("slate", 12),
+            ),
+            spacing="1",
         ),
-        spacing="1",
-        ), 
         rx.text(
             "In addition to simple searches, this website also provides interactive visualizations from multiple perspectives to fully help users study the prevalence and specificity of RNA editing sites.",
             color=rx.color("slate", 11),
         ),
         rx.hstack(
-            *[create_featured(item["icon"], item["title"], item["description"]) for item in features],
+            *[
+                create_featured(item["icon"], item["title"], item["description"])
+                for item in features
+            ],
             width="100%",
             display="grid",
             grid_template_columns=[
@@ -187,13 +192,46 @@ def index() -> rx.Component:
             ),
             rx.text(
                 "Don't know how to use it? Please check the help page.",
-                 rx.link("help",href="/help", label="Help"),
+                rx.link("help", href="/help", label="Help"),
                 size="2",
                 color="red",
             ),
+            rx.text(
+                "Don't want to search? just download the data:",
+                color_scheme="orange",
+                weight="bold",
+            ),
+            rx.flex(
+                rx.flex(
+                    rx.text(
+                        "All Editing Sites:",
+                        weight="bold",
+                    ),
+                    rx.link(
+                        "Link",
+                        href="https://alist.xiaohanys.xyz/d/Yidong/Bioinformatics/RNA_editing_data.txt",
+                        is_external=True,
+                    ),
+                    spacing="2",
+                ),
+                rx.flex(
+                    rx.text(
+                        "All Editing Levels:",
+                        weight="bold",
+                    ),
+                    rx.link(
+                        "Link",
+                        href="https://alist.xiaohanys.xyz/d/Yidong/Bioinformatics/RE_levels.tsv",
+                        is_external=True,
+                    ),
+                    spacing="2",
+                ),
+                direction="column",
+                spacing="1",
+            ),
             rx.flex(
                 rx.center(
-                    rx.divider(width="100%", class_name="justify-self-center mb-5"),
+                    rx.divider(width="100%", class_name="justify-self-center mb-4"),
                 ),
                 rx.center(
                     rx.hstack(
@@ -239,14 +277,14 @@ def index() -> rx.Component:
                         width="100%",
                         height=380,
                     ),
-                    class_name="pt-5"
+                    class_name="pt-2",
                 ),
-                class_name="w-[100%] [&_.recharts-tooltip-item-separator]:w-full mt-10",
+                class_name="w-[100%] [&_.recharts-tooltip-item-separator]:w-full mt-5",
                 direction="column",
             ),
             rx.divider(),
             create_featured_section(data),
-            class_name="pt-[32px]"
+            class_name="pt-[32px]",
         ),
         width="100%",
         class_name="mt-[69px]",
