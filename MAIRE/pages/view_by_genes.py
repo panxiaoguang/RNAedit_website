@@ -106,13 +106,7 @@ class ViewByGeneState(rx.State):
 
     @rx.event
     def clear_data(self):
-        self.running = False
-        self.gene_symbol = ""
-        self._transcript_data = []
-        self._level_dot_data = []
-        self._trans_len = 0
-        self.show_figure = True
-        self.spinner = False
+        self.reset()
 
     @rx.var
     def get_figure_width(self) -> str:
@@ -129,6 +123,7 @@ class ViewByGeneState(rx.State):
 @rx.page(
     "/view_by_gene",
     title="View RNA Editing by Genes",
+    on_load=ViewByGeneState.clear_data,
 )
 @template
 def view_by_genes() -> rx.Component:

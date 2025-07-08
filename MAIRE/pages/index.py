@@ -203,6 +203,7 @@ def index() -> rx.Component:
             ),
             rx.flex(
                 rx.flex(
+                    rx.icon(tag="file-down"),
                     rx.text(
                         "All Editing Sites:",
                         weight="bold",
@@ -213,8 +214,10 @@ def index() -> rx.Component:
                         is_external=True,
                     ),
                     spacing="2",
+                    align="center",
                 ),
                 rx.flex(
+                    rx.icon(tag="file-down"),
                     rx.text(
                         "All Editing Levels:",
                         weight="bold",
@@ -225,6 +228,7 @@ def index() -> rx.Component:
                         is_external=True,
                     ),
                     spacing="2",
+                    align="center",
                 ),
                 direction="column",
                 spacing="1",

@@ -206,12 +206,7 @@ class SearchByPositionState(rx.State):
 
     @rx.event
     def clear_data(self):
-        self.main_search_running = False
-        self.table_find = False
-        self.main_data = []
-        self.paginated_data = []
-        self.column_names = []
-        self.editing_level = []
+        self.reset()
 
     @rx.event
     def start_search(self):
@@ -572,7 +567,11 @@ def create_pagination():
 
 
 #### main UI for this page:
-@rx.page("/search_by_position", title="Search By Position")
+@rx.page(
+    "/search_by_position",
+    title="Search By Position",
+    on_load=SearchByPositionState.clear_data,
+)
 @template
 def search_by_position():
     return rx.flex(
@@ -642,6 +641,9 @@ def search_by_position():
                     rx.flex(
                         rx.text("Genomic Region:"),
                         rx.input(
+                            disabled=rx.cond(
+                                SearchByPositionState.gene_symbol != "", True, False
+                            ),
                             placeholder="Coordinates like chr5:156540190-156541198",
                             value=SearchByPositionState.region,
                             on_change=SearchByPositionState.set_region.debounce(500),
