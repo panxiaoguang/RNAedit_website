@@ -13,7 +13,7 @@ class Gene(rx.Model, table=True):
     start: int
     end: int
     strand: str
-    symbol: str
+    symbol: str = sqlmodel.Field(index=True)
     ensembly_id: str
     species: Optional["Species"] = sqlmodel.Relationship(back_populates="genes")
     transcripts: List["Transcript"] = sqlmodel.Relationship(back_populates="gene")
@@ -67,7 +67,7 @@ class Aminochange(rx.Model, table=True):
 
 
 class RNAediting(rx.Model, table=True):
-    chromosome: str
+    chromosome: str = sqlmodel.Field(index=True)
     position: int
     ref: str
     alt: str

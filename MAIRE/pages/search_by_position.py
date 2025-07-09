@@ -210,6 +210,44 @@ class SearchByPositionState(rx.State):
 
     @rx.event
     def start_search(self):
+        ## 首先需要检查Start < end
+        if self.region != "":
+            chrom, pos = self.region.split(":")
+            start, end = pos.split("-")
+            start = int(start)
+            end = int(end)
+            if chrom not in [
+                "chr1",
+                "chr2",
+                "chr3",
+                "chr4",
+                "chr5",
+                "chr6",
+                "chr7",
+                "chr8",
+                "chr9",
+                "chr10",
+                "chr11",
+                "chr12",
+                "chr13",
+                "chr14",
+                "chr15",
+                "chr16",
+                "chr17",
+                "chr18",
+                "chr19",
+                "chr20",
+                "chr21",
+                "chr22",
+                "chrX",
+                "chrY",
+                "chrM",
+            ]:
+                yield rx.toast.error("Invalid chromosome!")
+                return
+            if start > end:
+                yield rx.toast.error("Start position must be less than end position!")
+                return
         self.main_search_running = True
         return SearchByPositionState.get_data_from_database()
 

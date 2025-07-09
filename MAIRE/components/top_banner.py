@@ -20,7 +20,7 @@ class TopBannerBasic(rx.ComponentState):
                         radius="full",
                     ),
                     rx.text(
-                        "Our Publication has been published - 2025-06-18 ",
+                        "Our study has been published - 2025-06-18 ",
                         rx.link(
                             "Goto->",
                             href="https://academic.oup.com/nar/article/53/11/gkaf534/8166790",

@@ -2,9 +2,10 @@
 assets/external/
 __pycache__/
 *.py[cod]
-.states
-.venv
-.web
+.states/*
+.venv/*
+.web/*
 .env
-.vscode
+.vscode/*
 
+CLAUDE.md
