@@ -7,18 +7,14 @@ class NavbarState(rx.State):
 
 def navbar_link(text: str, url: str) -> rx.Component:
     return rx.link(
-       rx.text(text, class_name="text-base text-gray-500"),
-        href=url,
+        rx.text(text, class_name="text-base text-gray-500"), href=url, underline="none"
     )
 
 
 def navbar() -> rx.Component:
     return rx.box(
         rx.hstack(
-            rx.link(
-                rx.image(src="/logo.png", width="150px", height="50px"),
-                href="/"
-            ),
+            rx.link(rx.image(src="/logo.png", width="150px", height="50px"), href="/"),
             rx.hstack(
                 navbar_link("Home", "/"),
                 rx.menu.root(
@@ -46,14 +42,13 @@ def navbar() -> rx.Component:
                     rx.menu.content(
                         rx.menu.item(
                             navbar_link("Search by Position", "/search_by_position"),
-                             
                         ),
                         rx.menu.item(
                             navbar_link("View by Gene", "/view_by_gene"),
                         ),
                         color_scheme="gray",
                         variant="soft",
-                        align="center"
+                        align="start",
                     ),
                 ),
                 navbar_link("JBrowse", "/jbrowse_view"),
